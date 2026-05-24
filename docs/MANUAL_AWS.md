@@ -2,7 +2,9 @@
 
 **Proyecto:** Argos  
 **Plataforma:** Amazon Rekognition Custom Labels — us-east-1  
-**Autores:** María Alejandra Gómez Piedrahita · Juan Manuel Castillo Pinto
+**Project ARN:** `arn:aws:rekognition:us-east-1:442444704156:project/Argos/1779659669813`  
+**Autores:** María Alejandra Gómez Piedrahita · Juan Manuel Castillo Pinto  
+**Materia:** 2026-1 · VISIÓN POR COMPUTADOR · G02
 
 ---
 
@@ -10,80 +12,75 @@
 
 Ingresar a: https://us-east-1.console.aws.amazon.com/rekognition/custom-labels
 
-![Página principal Custom Labels](screenshots/01_rekognition_custom_labels_home.png)
+El proyecto **Argos** fue creado en la región **us-east-1 (N. Virginia)**.
 
 ---
 
-## Paso 2 — Proyecto Argos
+## Paso 2 — Crear conjunto de datos
 
-El proyecto fue creado con el nombre **Argos**.
+Se configuró el dataset con las siguientes opciones:
+- ✅ **"Comience con un único conjunto de datos"** — división automática 80% entrenamiento / 20% prueba
+- ✅ **"Cargar imágenes desde el equipo"**
 
-![Proyecto Argos](screenshots/02_proyecto_argos_creado.png)
-
----
-
-## Paso 3 — Crear dataset
-
-Configuración seleccionada:
-- ✅ **Comience con un único conjunto de datos** (80% train / 20% test automático)
-- ✅ **Cargar imágenes desde el equipo**
-
-![Crear dataset](screenshots/03_crear_dataset_config.png)
+![Crear conjunto de datos](screenshots/Crear%20Conjunto%20de%20datos.png)
 
 ---
 
-## Paso 4 — Subir imágenes de entrenamiento
+## Paso 3 — Agregar imágenes al conjunto de datos
 
-Se subieron **51 imágenes** en 3 grupos:
+Las imágenes fueron subidas en 3 tandas (una por clase) para facilitar el etiquetado:
 
-### 🐘 Elefantes (17 imágenes)
-![Subida elephant](screenshots/04_subir_imagenes_elephant.png)
+| Clase | Imágenes | Etiqueta |
+|-------|----------|----------|
+| 🐘 Elefante | 17 | `elephant` |
+| 🦒 Jirafa | 17 | `giraffe` |
+| 🦁 León | 17 | `lion` |
 
-### 🦒 Jirafas (17 imágenes)
-![Subida giraffe](screenshots/05_subir_imagenes_giraffe.png)
-
-### 🦁 Leones (17 imágenes)
-![Subida lion](screenshots/06_subir_imagenes_lion.png)
+![Agregar imágenes](screenshots/Agregar%20imagenes%20al%20conjunto%20de%20datos.png)
 
 ---
 
-## Paso 5 — Etiquetar imágenes
+## Paso 4 — Crear etiquetas (labels)
 
-Cada conjunto de imágenes fue etiquetado con su respectiva clase.
+Se crearon 3 etiquetas de clasificación: `elephant`, `giraffe`, `lion`.
 
-### Etiqueta: `elephant`
-![Etiquetado elephant](screenshots/07_etiquetado_elephant.png)
+![Crear etiquetas](screenshots/Crear%20Etiquetas%20para%20el%20conjunto%20de%20datos.png)
 
-### Etiqueta: `giraffe`
-![Etiquetado giraffe](screenshots/08_etiquetado_giraffe.png)
+---
 
-### Etiqueta: `lion`
-![Etiquetado lion](screenshots/09_etiquetado_lion.png)
+## Paso 5 — Dataset completo con imágenes etiquetadas
 
-### Dataset completo (51 imágenes etiquetadas)
-![Dataset completo](screenshots/10_dataset_completo_51_imagenes.png)
+Las 51 imágenes fueron etiquetadas correctamente: **17 por cada categoría**.
+
+![Imágenes etiquetadas](screenshots/Imagenes%20Etiquedatas%2017%20por%20categorias.png)
+
+### Detalle del conjunto de datos
+
+![Detalle dataset](screenshots/Detalle%20del%20conjunto%20de%20datos.png)
 
 ---
 
 ## Paso 6 — Entrenar el modelo
 
-Se seleccionó **Quick Training** y se inició el entrenamiento.
+Se inició el entrenamiento desde la pantalla **"Modelo de entrenamiento"**.
 
-![Iniciar entrenamiento](screenshots/11_iniciar_entrenamiento.png)
+El proyecto fue seleccionado automáticamente con su ARN:
+```
+arn:aws:rekognition:us-east-1:442444704156:project/Argos/1779659669813
+```
 
-### Entrenamiento en progreso (~45 minutos)
-![En progreso](screenshots/12_entrenamiento_en_progreso.png)
+![Modelo de entrenamiento](screenshots/Modelo%20de%20entrenamiento.png)
 
-### Entrenamiento completado
-![Completado](screenshots/13_entrenamiento_completado.png)
+> ⏳ El entrenamiento tarda aproximadamente **45 minutos**.  
+> AWS usa Transfer Learning sobre modelos pre-entrenados para clasificación multiclase.
 
 ---
 
 ## Paso 7 — Evaluar el modelo
 
-### Métricas de Precision y Recall
+*(Capturas pendientes — completar después del entrenamiento)*
 
-![Métricas](screenshots/14_metricas_precision_recall.png)
+Una vez completado, la consola mostrará las métricas de **Precision** y **Recall** por clase.
 
 | Clase | Precision | Recall |
 |-------|-----------|--------|
@@ -91,43 +88,43 @@ Se seleccionó **Quick Training** y se inició el entrenamiento.
 | Giraffe | ___% | ___% |
 | Lion | ___% | ___% |
 
-### Quick Test — Pruebas rápidas
+---
 
-![Test elephant](screenshots/15_quick_test_elephant.png)
-![Test giraffe](screenshots/16_quick_test_giraffe.png)
-![Test lion](screenshots/17_quick_test_lion.png)
+## Paso 8 — Quick Test (pruebas rápidas)
+
+*(Capturas pendientes)*
 
 ---
 
-## Paso 8 — Publicar el modelo
+## Paso 9 — Publicar modelo
 
-Se publicó el modelo para habilitar el endpoint de predicción.
-
-![Publicar modelo](screenshots/18_publicar_modelo.png)
-![Modelo RUNNING](screenshots/19_modelo_running.png)
+*(Capturas pendientes)*
 
 ```
-Model ARN: arn:aws:rekognition:us-east-1:XXXXXXXXXXXX:project/Argos/version/.../...
+Model ARN: arn:aws:rekognition:us-east-1:442444704156:project/Argos/version/...
 ```
 
 ---
 
-## Paso 9 — App cliente (predict.py)
+## Paso 10 — App cliente (predict.py)
 
 ```bash
 pip install boto3
+
 python src/client/predict.py \
   --image data/test/mi_animal.jpg \
-  --model-arn arn:aws:rekognition:us-east-1:...:project/Argos/version/.../...
+  --model-arn arn:aws:rekognition:us-east-1:442444704156:project/Argos/version/...
 ```
-
-![Terminal predict.py](screenshots/20_predict_py_terminal.png)
 
 ---
 
-## Resumen de recursos AWS utilizados
+## Resumen de infraestructura AWS
 
-| Recurso | Nombre | Región | Costo estimado |
-|---------|--------|--------|---------------|
-| Rekognition Custom Labels | Argos | us-east-1 | ~$1 USD (training) |
-| Endpoint de predicción | Argos v1 | us-east-1 | $0.01/imagen |
+| Recurso | Valor |
+|---------|-------|
+| Servicio | Amazon Rekognition Custom Labels |
+| Región | us-east-1 (N. Virginia) |
+| Proyecto | Argos |
+| Project ARN | `arn:aws:rekognition:us-east-1:442444704156:project/Argos/1779659669813` |
+| Dataset | 51 imágenes · 3 clases · 17 imgs/clase |
+| Entrenamiento | Quick Training |
