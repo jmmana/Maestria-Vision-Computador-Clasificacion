@@ -162,6 +162,36 @@ python src/client/predict.py \
 
 ---
 
+## 📸 Proceso de implementación en AWS
+
+### 1. Crear conjunto de datos
+![Crear conjunto de datos](docs/screenshots/Crear%20Conjunto%20de%20datos.png)
+
+### 2. Configuración 80% entrenamiento / 20% prueba
+![Configuración 80/20](docs/screenshots/Modeo%20de%20formacion%2080%20.png)
+
+### 3. Agregar imágenes al conjunto de datos
+![Agregar imágenes](docs/screenshots/Agregar%20imagenes%20al%20conjunto%20de%20datos.png)
+
+### 4. Crear etiquetas (elephant · giraffe · lion)
+![Crear etiquetas](docs/screenshots/Crear%20Etiquetas%20para%20el%20conjunto%20de%20datos.png)
+
+### 5. Dataset completo — 17 imágenes por categoría
+![Imágenes etiquetadas](docs/screenshots/Imagenes%20Etiquedatas%2017%20por%20categorias.png)
+
+### 6. Detalle del conjunto de datos
+![Detalle dataset](docs/screenshots/Detalle%20del%20conjunto%20de%20datos.png)
+
+### 7. Configuración del modelo de entrenamiento
+![Modelo de entrenamiento](docs/screenshots/Modelo%20de%20entrenamiento.png)
+
+### 8. Entrenamiento en progreso
+![Entrenamiento en progreso](docs/screenshots/Modelo%20en%20entrenamiento.png)
+
+> Ver el manual completo en [`docs/MANUAL_AWS.md`](docs/MANUAL_AWS.md)
+
+---
+
 ## 📊 Resultados del modelo
 
 > 📝 *Esta sección se completa después del entrenamiento.*  
