@@ -24,6 +24,12 @@ Se configuró el dataset con las siguientes opciones:
 
 ![Crear conjunto de datos](screenshots/Crear%20Conjunto%20de%20datos.png)
 
+### Configuración de división 80/20
+
+AWS divide automáticamente el dataset: 80% para entrenamiento y 20% para evaluación.
+
+![Configuración 80/20](screenshots/Modeo%20de%20formacion%2080%20.png)
+
 ---
 
 ## Paso 3 — Agregar imágenes al conjunto de datos
@@ -70,6 +76,12 @@ arn:aws:rekognition:us-east-1:442444704156:project/Argos/1779659669813
 ```
 
 ![Modelo de entrenamiento](screenshots/Modelo%20de%20entrenamiento.png)
+
+### Entrenamiento en progreso
+
+Una vez confirmado, AWS inicia el proceso de Quick Training usando Transfer Learning.
+
+![Entrenamiento en progreso](screenshots/Modelo%20en%20entrenamiento.png)
 
 > ⏳ El entrenamiento tarda aproximadamente **45 minutos**.  
 > AWS usa Transfer Learning sobre modelos pre-entrenados para clasificación multiclase.
