@@ -16,9 +16,6 @@ import sys
 import boto3
 from pathlib import Path
 
-EMOJI = {"elephant": "🐘", "giraffe": "🦒", "lion": "🦁"}
-
-
 def predecir(image_path: str, project_version_arn: str, region: str = "us-east-1",
              min_confidence: float = 50.0) -> None:
     """
@@ -68,10 +65,8 @@ def predecir(image_path: str, project_version_arn: str, region: str = "us-east-1
         # Ordenar por confianza descendente
         labels.sort(key=lambda x: x["Confidence"], reverse=True)
         top = labels[0]
-        nombre = top["Name"].lower()
-        emoji = EMOJI.get(nombre, "🐾")
 
-        print(f"✅ Predicción: {emoji} {top['Name'].upper()}")
+        print(f"  Prediccion: {top['Name'].upper()}")
         print(f"   Confianza:  {top['Confidence']:.1f}%")
 
         if len(labels) > 1:

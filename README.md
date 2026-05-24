@@ -1,4 +1,4 @@
-# 🦁 Argos — Clasificador de Imágenes de Animales Salvajes
+# Argos — Clasificador de Imágenes de Animales Salvajes
 
 > *Argos Panoptes: el gigante de cien ojos de la mitología griega que todo lo veía.*  
 > *Para un modelo de visión por computador, un nombre perfecto.*
@@ -28,9 +28,9 @@ Argos es un modelo de clasificación de imágenes entrenado en **AWS Rekognition
 
 | Clase | Animal | Imágenes de entrenamiento |
 |-------|--------|--------------------------|
-| `elephant` | 🐘 Elefante africano | 17 |
-| `giraffe` | 🦒 Jirafa | 17 |
-| `lion` | 🦁 León | 17 |
+| `elephant` | Elefante africano | 17 |
+| `giraffe` | Jirafa | 17 |
+| `lion` | León | 17 |
 
 ---
 

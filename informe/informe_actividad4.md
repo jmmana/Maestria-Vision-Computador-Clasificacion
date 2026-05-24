@@ -136,7 +136,7 @@ python src/client/predict.py \
 ```
 🔍 Analizando imagen: mi_animal.jpg
 ────────────────────────────────────────
-✅ Predicción: 🐘 ELEPHANT
+✅ Predicción: ELEPHANT
    Confianza:  94.7%
 ────────────────────────────────────────
 ```

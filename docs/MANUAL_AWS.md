@@ -38,9 +38,9 @@ Las imágenes fueron subidas en 3 tandas (una por clase) para facilitar el etiqu
 
 | Clase | Imágenes | Etiqueta |
 |-------|----------|----------|
-| 🐘 Elefante | 17 | `elephant` |
-| 🦒 Jirafa | 17 | `giraffe` |
-| 🦁 León | 17 | `lion` |
+| Elefante | 17 | `elephant` |
+| Jirafa | 17 | `giraffe` |
+| León | 17 | `lion` |
 
 ![Agregar imágenes](screenshots/Agregar%20imagenes%20al%20conjunto%20de%20datos.png)
 
