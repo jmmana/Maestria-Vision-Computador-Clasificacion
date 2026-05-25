@@ -119,6 +119,32 @@
       </p>
     </div>
 
+    <!-- Banner de instrucciones cuando el modelo está apagado -->
+    <div x-show="modelStatus !== 'RUNNING'"
+         class="mb-8 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6">
+      <div class="flex gap-4 items-start">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+          <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="text-amber-300 font-semibold text-sm mb-2">El modelo de clasificación está apagado</p>
+          <p class="text-amber-200/70 text-sm leading-relaxed">
+            Para clasificar imágenes debes iniciar el modelo en AWS Rekognition.<br/>
+            Haz clic en <strong class="text-amber-300">"Encender modelo"</strong> (arriba a la derecha)
+            y espera <strong class="text-amber-300">3–5 minutos</strong> mientras AWS lo activa.
+            El indicador cambiará a verde cuando esté listo.
+          </p>
+          <div class="mt-3 flex flex-col gap-1 text-xs text-amber-200/50">
+            <span>Estado actual: <span class="font-mono" x-text="statusLabel()"></span></span>
+            <span>Servicio: AWS Rekognition Custom Labels · us-east-1</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Zona principal: 2 columnas -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
@@ -281,6 +307,49 @@
       </div>
 
     </div>
+    <!-- Panel de actividad / log -->
+    <div class="mt-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-500">Registro de actividad</h2>
+        <button @click="loadLogs()" class="text-xs text-gray-600 hover:text-gray-400 transition-colors">
+          Actualizar
+        </button>
+      </div>
+
+      <div class="bg-gray-900 border border-gray-800 rounded-2xl overflow-hidden">
+        <!-- Cabecera tabla -->
+        <div class="grid grid-cols-12 px-5 py-2 border-b border-gray-800 text-xs font-semibold text-gray-600 uppercase tracking-wider">
+          <span class="col-span-3">Timestamp (UTC)</span>
+          <span class="col-span-3">Evento</span>
+          <span class="col-span-6">Detalle</span>
+        </div>
+
+        <!-- Filas -->
+        <div x-show="logs.length === 0" class="px-5 py-6 text-center text-gray-600 text-sm">
+          Sin actividad registrada en esta sesión.
+        </div>
+
+        <template x-for="(entry, idx) in logs" :key="idx">
+          <div class="grid grid-cols-12 px-5 py-3 border-b border-gray-800/60 text-sm hover:bg-gray-800/30 transition-colors"
+               :class="{'bg-red-900/10': entry.event.includes('Error'), 'bg-amber-900/10': entry.event.includes('Auto')}">
+            <span class="col-span-3 font-mono text-xs text-gray-500 pt-0.5" x-text="entry.ts"></span>
+            <span class="col-span-3 font-medium"
+                  :class="{
+                    'text-green-400':  entry.event.includes('iniciado') || entry.event.includes('clasificada'),
+                    'text-red-400':    entry.event.includes('Error') || entry.event.includes('detenido'),
+                    'text-yellow-400': entry.event.includes('Auto'),
+                    'text-gray-300':   true
+                  }"
+                  x-text="entry.event"></span>
+            <span class="col-span-6 text-gray-400 text-xs pt-0.5" x-text="entry.detail"></span>
+          </div>
+        </template>
+      </div>
+      <p class="text-xs text-gray-700 mt-2 text-center">
+        El registro se reinicia cada vez que el servidor se reinicia · Últimas 50 entradas
+      </p>
+    </div>
+
   </main>
 
   <script>
@@ -305,10 +374,15 @@
         // Toast
         toast: { show: false, msg: '', type: 'ok' },
 
+        // Logs
+        logs: [],
+
         // ── Init ──────────────────────────────────────────────────────────────
         init() {
           this.pollStatus();
-          setInterval(() => this.pollStatus(), 15000); // cada 15 seg
+          this.loadLogs();
+          setInterval(() => this.pollStatus(), 15000);
+          setInterval(() => this.loadLogs(), 20000);
         },
 
         // ── Estado del modelo ─────────────────────────────────────────────────
@@ -402,6 +476,15 @@
           } finally {
             this.processing = false;
           }
+        },
+
+        // ── Logs ──────────────────────────────────────────────────────────────
+        async loadLogs() {
+          try {
+            const r = await fetch('/api/logs');
+            const data = await r.json();
+            this.logs = data.logs ?? [];
+          } catch {}
         },
 
         // ── Toast ─────────────────────────────────────────────────────────────

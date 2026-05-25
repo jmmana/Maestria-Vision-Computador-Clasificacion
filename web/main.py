@@ -36,6 +36,21 @@ MODEL_MAX_MIN  = int(os.getenv("MODEL_MAX_MINUTES", "60"))
 # ─── Estado del modelo (en memoria) ──────────────────────────────────────────
 model_started_at: Optional[datetime] = None
 
+# ─── Log de actividad (en memoria, últimas 50 entradas) ───────────────────────
+from collections import deque
+activity_log: deque = deque(maxlen=50)
+
+def add_log(event: str, detail: str = ""):
+    """Agrega una entrada al log de actividad."""
+    now = datetime.now(timezone.utc)
+    entry = {
+        "ts": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        "event": event,
+        "detail": detail,
+    }
+    activity_log.appendleft(entry)
+    log.info(f"[LOG] {event}: {detail}")
+
 # ─── FastAPI + Jinja2 ─────────────────────────────────────────────────────────
 app = FastAPI(title="Argos — Clasificador de Imágenes")
 templates = Jinja2Templates(directory="templates")
@@ -73,8 +88,10 @@ def start_model():
         r = rekognition_client()
         r.start_project_version(ProjectVersionArn=MODEL_ARN, MinInferenceUnits=1)
         model_started_at = datetime.now(timezone.utc)
+        add_log("Modelo iniciado", "StartProjectVersion enviado a AWS Rekognition")
         log.info("Modelo iniciado")
     except ClientError as e:
+        add_log("Error al iniciar modelo", str(e))
         log.error(f"Error al iniciar modelo: {e}")
         raise
 
@@ -85,8 +102,10 @@ def stop_model():
         r = rekognition_client()
         r.stop_project_version(ProjectVersionArn=MODEL_ARN)
         model_started_at = None
+        add_log("Modelo detenido", "StopProjectVersion enviado a AWS Rekognition")
         log.info("Modelo detenido")
     except ClientError as e:
+        add_log("Error al detener modelo", str(e))
         log.error(f"Error al detener modelo: {e}")
         raise
 
@@ -100,6 +119,7 @@ def auto_shutoff_check():
     elapsed = (datetime.now(timezone.utc) - model_started_at).total_seconds() / 60
     if elapsed >= MODEL_MAX_MIN:
         log.warning(f"Auto-apagado: modelo lleva {elapsed:.1f} min. Apagando...")
+        add_log("Auto-apagado", f"Modelo apagado automáticamente tras {elapsed:.1f} min (límite: {MODEL_MAX_MIN} min)")
         try:
             stop_model()
         except Exception:
@@ -225,6 +245,14 @@ async def api_model_stop(request: Request):
         return JSONResponse({"ok": False, "message": str(e)}, status_code=500)
 
 
+# ─── API: Log de actividad ────────────────────────────────────────────────────
+
+@app.get("/api/logs")
+async def api_logs(request: Request):
+    require_auth(request)
+    return JSONResponse({"logs": list(activity_log)})
+
+
 # ─── API: Clasificar imagen ───────────────────────────────────────────────────
 
 @app.post("/api/classify")
@@ -251,9 +279,17 @@ async def api_classify(request: Request, file: UploadFile = File(...)):
         )
         labels = sorted(resp.get("CustomLabels", []), key=lambda x: x["Confidence"], reverse=True)
 
-        # Miniatura base64 para mostrar en UI
+        # Log de la clasificación
+        if labels:
+            top = labels[0]
+            add_log(
+                "Imagen clasificada",
+                f"{file.filename} → {top['Name'].upper()} ({top['Confidence']:.1f}% confianza)"
+            )
+        else:
+            add_log("Imagen clasificada", f"{file.filename} → sin detección")
+
         thumbnail = base64.b64encode(contents).decode()
-        ext = (file.content_type or "image/jpeg").split("/")[-1]
 
         return JSONResponse({
             "ok": True,
@@ -261,4 +297,5 @@ async def api_classify(request: Request, file: UploadFile = File(...)):
             "image_b64": f"data:{file.content_type};base64,{thumbnail}",
         })
     except Exception as e:
+        add_log("Error en clasificación", str(e))
         return JSONResponse({"ok": False, "message": str(e)}, status_code=500)
