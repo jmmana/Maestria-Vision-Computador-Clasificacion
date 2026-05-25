@@ -220,6 +220,7 @@ La aplicación incluye:
 | Auto-apagado | Cierre automático tras 60 minutos para control de costos |
 | Clasificación | Carga de imagen por drag-and-drop con efecto visual de procesamiento |
 | Resultados | Clase predicha con porcentaje de confianza y barras animadas |
+| Log de actividad | Registro en tiempo real de cada operación con timestamp UTC |
 
 **Stack tecnológico de la aplicación web:**
 
@@ -228,6 +229,46 @@ Backend  : Python · FastAPI · boto3 · APScheduler
 Frontend : TailwindCSS · Alpine.js
 Deploy   : Docker · Coolify · argos.warlockcode.com
 ```
+
+#### Pantallas de la aplicación
+
+**Figura 1 — Landing page y autenticación**
+
+![Login de Argos](docs/screenshots/Argos%20login.png)
+
+*Página de inicio con presentación del proyecto y formulario de autenticación. Acceso: usuario `admin`, contraseña `argos2026lasalle`.*
+
+---
+
+**Figura 2 — Dashboard con modelo activo**
+
+![Dashboard de Argos](docs/screenshots/argos%20dasboad.png)
+
+*Dashboard principal. El banner verde confirma que el modelo AWS está en estado RUNNING y listo para clasificar. El log de actividad en la parte inferior registra cada operación con timestamp UTC.*
+
+---
+
+**Figura 3 — Módulo clasificador**
+
+![Clasificador de imágenes](docs/screenshots/Clasificador%20de%20imagenes.png)
+
+*Módulo de clasificación con área de drag-and-drop activa. El botón "Clasificar imagen" se habilita automáticamente al cargar una imagen.*
+
+---
+
+**Figura 4 — Imagen cargada, lista para clasificar**
+
+![Imagen cargada](docs/screenshots/Clasificador%20de%20imagenes%20con%20imagen.png)
+
+*Preview inmediato de la imagen seleccionada. La imagen se envía al backend como bytes (sin S3) y FastAPI la reenvía a `detect_custom_labels` de AWS Rekognition.*
+
+---
+
+**Figura 5 — Resultado de clasificación**
+
+![Resultado de clasificación](docs/screenshots/Clasificador%20de%20imagen%20con%20imagen%20clasificada.png)
+
+*Resultado de clasificación exitosa: clase predicha (ELEPHANT) con porcentaje de confianza y barra de progreso animada. El evento queda registrado en el log de actividad.*
 
 ---
 

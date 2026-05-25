@@ -488,6 +488,66 @@ Usuario → / (landing + login)
           (us-east-1 · Proyecto: Argos)
 ```
 
+### 10.6 Capturas de pantalla de la aplicación
+
+A continuación se documenta el flujo completo de uso de la aplicación web Argos, desde el ingreso hasta la obtención del resultado de clasificación.
+
+---
+
+**Pantalla 1 — Landing page y autenticación**
+
+![Login de Argos](docs/screenshots/Argos%20login.png)
+*Figura 13. Página de inicio de Argos. Presenta el nombre del proyecto, los autores, la universidad y el formulario de autenticación. El diseño evoca el concepto de visión con su estética oscura. El acceso requiere usuario y contraseña configurados en las variables de entorno del servidor.*
+
+La pantalla de inicio cumple una función dual: sirve como presentación del proyecto ante el docente (contexto académico, nombres, institución) y como punto de control de acceso. Solo usuarios autorizados pueden acceder al módulo de clasificación.
+
+---
+
+**Pantalla 2 — Dashboard con estado del modelo activo**
+
+![Dashboard de Argos](docs/screenshots/argos%20dasboad.png)
+*Figura 14. Dashboard principal con el modelo AWS en estado RUNNING (banner verde). El sistema verifica el estado del modelo en tiempo real consultando la API de AWS Rekognition cada 15 segundos. Cuando el modelo está activo, el indicador verde confirma que el endpoint está listo para recibir solicitudes de clasificación.*
+
+El panel superior muestra el estado actual del modelo con indicadores visuales diferenciados:
+- **Verde (RUNNING):** modelo activo, listo para clasificar
+- **Amarillo (STARTING):** modelo iniciando, esperar 3–5 minutos
+- **Gris (STOPPED):** modelo detenido, debe encenderse antes de clasificar
+
+Los botones **"Encender modelo"** y **"Detener modelo"** gestionan el ciclo de vida del endpoint AWS desde la misma interfaz, sin necesidad de acceder a la consola de AWS. Un log de actividad en tiempo real registra todas las operaciones.
+
+---
+
+**Pantalla 3 — Módulo de clasificación listo para recibir imagen**
+
+![Clasificador de imágenes](docs/screenshots/Clasificador%20de%20imagenes.png)
+*Figura 15. Módulo de clasificación de imágenes con el área de carga activa. La zona de drag-and-drop indica claramente los formatos soportados (JPG, PNG, WEBP, máximo 5 MB). El botón de clasificación permanece deshabilitado hasta que se seleccione una imagen.*
+
+El módulo de clasificación ocupa el área central del dashboard. El diseño guía al usuario paso a paso: primero verificar que el modelo esté activo (banner verde en la parte superior), luego cargar la imagen. La interfaz es responsiva y funciona tanto en escritorio como en dispositivos móviles.
+
+---
+
+**Pantalla 4 — Imagen cargada, lista para clasificar**
+
+![Clasificador con imagen cargada](docs/screenshots/Clasificador%20de%20imagenes%20con%20imagen.png)
+*Figura 16. Imagen de elefante cargada en el clasificador. El preview de la imagen se muestra de inmediato al seleccionarla. El botón "Clasificar imagen" se habilita automáticamente y el sistema muestra el nombre del archivo seleccionado.*
+
+Una vez cargada la imagen, la aplicación muestra un preview visual inmediato sin necesidad de recargar la página (Alpine.js gestiona la reactividad del DOM en el cliente). La imagen es enviada al backend mediante `multipart/form-data` al hacer clic en clasificar, donde FastAPI la recibe como `UploadFile` y la reenvía a AWS Rekognition.
+
+---
+
+**Pantalla 5 — Resultado de clasificación**
+
+![Resultado de clasificación](docs/screenshots/Clasificador%20de%20imagen%20con%20imagen%20clasificada.png)
+*Figura 17. Resultado de clasificación exitosa. El modelo identifica la imagen como ELEPHANT con un porcentaje de confianza alto. La barra de progreso animada representa visualmente el nivel de confianza. El log de actividad en la parte inferior registra el evento con timestamp.*
+
+El resultado incluye:
+- **Clase predicha** en mayúsculas (ELEPHANT, GIRAFFE o LION)
+- **Porcentaje de confianza** calculado por AWS Rekognition Custom Labels
+- **Barra de progreso** proporcional al nivel de confianza (verde > 80%, amarillo 50–80%)
+- **Registro en el log** con nombre de archivo, clase y confianza para trazabilidad
+
+La comunicación con AWS se realiza enviando los bytes de la imagen directamente al endpoint `detect_custom_labels` del SDK boto3, sin necesidad de almacenamiento intermedio en S3.
+
 ---
 
 ## 11. Despliegue en producción con Coolify
@@ -566,7 +626,7 @@ argos.warlockcode.com ✅
 | Creación y configuración del recurso AWS AI Services | 1 / 1 | Figuras 1–3 · Project ARN documentado |
 | Creación y configuración del proyecto de clasificación | 2 / 2 | Figuras 4–7 · Dataset completo etiquetado |
 | Entrenamiento y evaluación del modelo | 1 / 1 | Figuras 8–12 · Métricas Precision/Recall |
-| Publicar y probar el modelo con aplicación cliente | 1 / 1 | `predict.py` + `argos.warlockcode.com` |
+| Publicar y probar el modelo con aplicación cliente | 1 / 1 | `predict.py` + Figuras 13–17 · `argos.warlockcode.com` |
 | **Total** | **5 / 5** | |
 
 ### 12.2 Comparación con Azure Custom Vision

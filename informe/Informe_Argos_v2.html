@@ -939,6 +939,42 @@ python src/client/predict.py --stop-model
           AWS Rekognition Custom Labels
           (us-east-1 · Proyecto: Argos)
 </code></pre>
+<h3 id="106-capturas-de-pantalla-de-la-aplicacion">10.6 Capturas de pantalla de la aplicación</h3>
+<p>A continuación se documenta el flujo completo de uso de la aplicación web Argos, desde el ingreso hasta la obtención del resultado de clasificación.</p>
+<hr />
+<p><strong>Pantalla 1 — Landing page y autenticación</strong></p>
+<p><img alt="Login de Argos" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Argos%20login.png" />
+<em>Figura 13. Página de inicio de Argos. Presenta el nombre del proyecto, los autores, la universidad y el formulario de autenticación. El diseño evoca el concepto de visión con su estética oscura. El acceso requiere usuario y contraseña configurados en las variables de entorno del servidor.</em></p>
+<p>La pantalla de inicio cumple una función dual: sirve como presentación del proyecto ante el docente (contexto académico, nombres, institución) y como punto de control de acceso. Solo usuarios autorizados pueden acceder al módulo de clasificación.</p>
+<hr />
+<p><strong>Pantalla 2 — Dashboard con estado del modelo activo</strong></p>
+<p><img alt="Dashboard de Argos" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/argos%20dasboad.png" />
+<em>Figura 14. Dashboard principal con el modelo AWS en estado RUNNING (banner verde). El sistema verifica el estado del modelo en tiempo real consultando la API de AWS Rekognition cada 15 segundos. Cuando el modelo está activo, el indicador verde confirma que el endpoint está listo para recibir solicitudes de clasificación.</em></p>
+<p>El panel superior muestra el estado actual del modelo con indicadores visuales diferenciados:
+- <strong>Verde (RUNNING):</strong> modelo activo, listo para clasificar
+- <strong>Amarillo (STARTING):</strong> modelo iniciando, esperar 3–5 minutos
+- <strong>Gris (STOPPED):</strong> modelo detenido, debe encenderse antes de clasificar</p>
+<p>Los botones <strong>"Encender modelo"</strong> y <strong>"Detener modelo"</strong> gestionan el ciclo de vida del endpoint AWS desde la misma interfaz, sin necesidad de acceder a la consola de AWS. Un log de actividad en tiempo real registra todas las operaciones.</p>
+<hr />
+<p><strong>Pantalla 3 — Módulo de clasificación listo para recibir imagen</strong></p>
+<p><img alt="Clasificador de imágenes" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Clasificador%20de%20imagenes.png" />
+<em>Figura 15. Módulo de clasificación de imágenes con el área de carga activa. La zona de drag-and-drop indica claramente los formatos soportados (JPG, PNG, WEBP, máximo 5 MB). El botón de clasificación permanece deshabilitado hasta que se seleccione una imagen.</em></p>
+<p>El módulo de clasificación ocupa el área central del dashboard. El diseño guía al usuario paso a paso: primero verificar que el modelo esté activo (banner verde en la parte superior), luego cargar la imagen. La interfaz es responsiva y funciona tanto en escritorio como en dispositivos móviles.</p>
+<hr />
+<p><strong>Pantalla 4 — Imagen cargada, lista para clasificar</strong></p>
+<p><img alt="Clasificador con imagen cargada" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Clasificador%20de%20imagenes%20con%20imagen.png" />
+<em>Figura 16. Imagen de elefante cargada en el clasificador. El preview de la imagen se muestra de inmediato al seleccionarla. El botón "Clasificar imagen" se habilita automáticamente y el sistema muestra el nombre del archivo seleccionado.</em></p>
+<p>Una vez cargada la imagen, la aplicación muestra un preview visual inmediato sin necesidad de recargar la página (Alpine.js gestiona la reactividad del DOM en el cliente). La imagen es enviada al backend mediante <code>multipart/form-data</code> al hacer clic en clasificar, donde FastAPI la recibe como <code>UploadFile</code> y la reenvía a AWS Rekognition.</p>
+<hr />
+<p><strong>Pantalla 5 — Resultado de clasificación</strong></p>
+<p><img alt="Resultado de clasificación" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Clasificador%20de%20imagen%20con%20imagen%20clasificada.png" />
+<em>Figura 17. Resultado de clasificación exitosa. El modelo identifica la imagen como ELEPHANT con un porcentaje de confianza alto. La barra de progreso animada representa visualmente el nivel de confianza. El log de actividad en la parte inferior registra el evento con timestamp.</em></p>
+<p>El resultado incluye:
+- <strong>Clase predicha</strong> en mayúsculas (ELEPHANT, GIRAFFE o LION)
+- <strong>Porcentaje de confianza</strong> calculado por AWS Rekognition Custom Labels
+- <strong>Barra de progreso</strong> proporcional al nivel de confianza (verde &gt; 80%, amarillo 50–80%)
+- <strong>Registro en el log</strong> con nombre de archivo, clase y confianza para trazabilidad</p>
+<p>La comunicación con AWS se realiza enviando los bytes de la imagen directamente al endpoint <code>detect_custom_labels</code> del SDK boto3, sin necesidad de almacenamiento intermedio en S3.</p>
 <hr />
 <h2 id="11-despliegue-en-produccion-con-coolify">11. Despliegue en producción con Coolify</h2>
 <h3 id="111-plataforma-de-despliegue">11.1 Plataforma de despliegue</h3>
@@ -1055,7 +1091,7 @@ argos.warlockcode.com ✅
 <tr>
 <td>Publicar y probar el modelo con aplicación cliente</td>
 <td>1 / 1</td>
-<td><code>predict.py</code> + <code>argos.warlockcode.com</code></td>
+<td><code>predict.py</code> + Figuras 13–17 · <code>argos.warlockcode.com</code></td>
 </tr>
 <tr>
 <td><strong>Total</strong></td>
