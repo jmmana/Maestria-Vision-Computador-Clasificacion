@@ -119,29 +119,79 @@
       </p>
     </div>
 
-    <!-- Banner de instrucciones cuando el modelo está apagado -->
-    <div x-show="modelStatus !== 'RUNNING'"
-         class="mb-8 bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6">
+    <!-- Banner de estado — siempre visible, cambia según estado -->
+
+    <!-- Verificando... -->
+    <div x-show="modelStatus === 'UNKNOWN' || modelStatus === 'CHECKING'"
+         class="mb-6 bg-gray-800 border border-gray-700 rounded-2xl p-5 flex items-center gap-4">
+      <svg class="animate-spin w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+      </svg>
+      <div>
+        <p class="text-gray-300 font-medium text-sm">Verificando estado del modelo en AWS...</p>
+        <p class="text-gray-500 text-xs mt-0.5">Consultando AWS Rekognition Custom Labels · us-east-1</p>
+      </div>
+    </div>
+
+    <!-- RUNNING — modelo activo -->
+    <div x-show="modelStatus === 'RUNNING'"
+         class="mb-6 bg-green-500/10 border border-green-500/30 rounded-2xl p-5 flex items-center gap-4 fade-up">
+      <div class="relative flex-shrink-0">
+        <div class="w-3 h-3 rounded-full bg-green-400"></div>
+        <div class="pulse-ring absolute inset-0 w-3 h-3 rounded-full text-green-400"></div>
+      </div>
+      <div class="flex-1">
+        <p class="text-green-300 font-semibold text-sm">Modelo activo — listo para clasificar imágenes</p>
+        <p class="text-green-200/50 text-xs mt-0.5">
+          AWS Rekognition Custom Labels · us-east-1 ·
+          <span x-show="minutesOn !== null">Activo hace <span x-text="minutesOn"></span> min</span>
+          <span x-show="minutesOn === null">en ejecución</span>
+          · Auto-apagado en <span x-text="minutesOn !== null ? (maxMinutes - minutesOn).toFixed(0) : maxMinutes"></span> min
+        </p>
+      </div>
+      <button @click="stopModel()"
+        class="text-xs text-red-400/70 hover:text-red-400 border border-red-500/20 hover:border-red-500/50
+               px-3 py-1.5 rounded-lg transition-all flex-shrink-0">
+        Detener modelo
+      </button>
+    </div>
+
+    <!-- STARTING -->
+    <div x-show="modelStatus === 'STARTING'"
+         class="mb-6 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl p-5 flex items-center gap-4">
+      <svg class="animate-spin w-5 h-5 text-yellow-400 flex-shrink-0" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+      </svg>
+      <div>
+        <p class="text-yellow-300 font-semibold text-sm">Modelo iniciando — espera 3 a 5 minutos</p>
+        <p class="text-yellow-200/50 text-xs mt-0.5">AWS está levantando la instancia de inferencia. La página se actualizará automáticamente.</p>
+      </div>
+    </div>
+
+    <!-- STOPPED / otros -->
+    <div x-show="['STOPPED','STOPPING','FAILED'].includes(modelStatus)"
+         class="mb-6 bg-gray-800/60 border border-gray-700 rounded-2xl p-5">
       <div class="flex gap-4 items-start">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
           <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
         </div>
-        <div>
-          <p class="text-amber-300 font-semibold text-sm mb-2">El modelo de clasificación está apagado</p>
-          <p class="text-amber-200/70 text-sm leading-relaxed">
-            Para clasificar imágenes debes iniciar el modelo en AWS Rekognition.<br/>
-            Haz clic en <strong class="text-amber-300">"Encender modelo"</strong> (arriba a la derecha)
-            y espera <strong class="text-amber-300">3–5 minutos</strong> mientras AWS lo activa.
-            El indicador cambiará a verde cuando esté listo.
+        <div class="flex-1">
+          <p class="text-gray-200 font-semibold text-sm mb-1">Modelo detenido</p>
+          <p class="text-gray-400 text-sm">
+            Haz clic en <strong class="text-amber-400">"Encender modelo"</strong> (arriba a la derecha)
+            y espera 3–5 minutos. La página se actualiza automáticamente.
           </p>
-          <div class="mt-3 flex flex-col gap-1 text-xs text-amber-200/50">
-            <span>Estado actual: <span class="font-mono" x-text="statusLabel()"></span></span>
-            <span>Servicio: AWS Rekognition Custom Labels · us-east-1</span>
-          </div>
         </div>
+        <button @click="startModel()" :disabled="actionLoading"
+          class="flex-shrink-0 bg-green-600 hover:bg-green-500 text-white text-xs font-semibold
+                 px-4 py-2 rounded-lg transition-all disabled:opacity-40">
+          Encender ahora
+        </button>
       </div>
     </div>
 
@@ -202,10 +252,16 @@
         <!-- Botón clasificar -->
         <button @click="classify()"
           :disabled="!selectedFile || processing || modelStatus !== 'RUNNING'"
-          class="w-full py-3 rounded-xl font-semibold text-sm transition-all
-                 bg-amber-500 hover:bg-amber-400 text-black
-                 disabled:opacity-30 disabled:cursor-not-allowed">
-          <span x-show="!processing">Clasificar imagen</span>
+          class="w-full py-3 rounded-xl font-semibold text-sm transition-all"
+          :class="modelStatus === 'RUNNING'
+            ? 'bg-amber-500 hover:bg-amber-400 text-black cursor-pointer'
+            : 'bg-gray-700 text-gray-500 cursor-not-allowed'">
+          <span x-show="!processing">
+            <span x-show="modelStatus === 'RUNNING'">Clasificar imagen</span>
+            <span x-show="modelStatus === 'STARTING'">Esperando que el modelo inicie...</span>
+            <span x-show="modelStatus === 'CHECKING' || modelStatus === 'UNKNOWN'">Verificando estado...</span>
+            <span x-show="['STOPPED','STOPPING','FAILED'].includes(modelStatus)">Modelo apagado — enciéndelo arriba</span>
+          </span>
           <span x-show="processing" class="flex items-center justify-center gap-2">
             <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
@@ -214,11 +270,6 @@
             Procesando...
           </span>
         </button>
-
-        <!-- Aviso si el modelo está apagado -->
-        <div x-show="modelStatus !== 'RUNNING'" class="text-center text-xs text-yellow-500/80">
-          El modelo debe estar encendido para clasificar imágenes.
-        </div>
       </div>
 
       <!-- Resultado -->
@@ -379,9 +430,18 @@
 
         // ── Init ──────────────────────────────────────────────────────────────
         init() {
+          // Poll agresivo al inicio: cada 3s por los primeros 30s
           this.pollStatus();
           this.loadLogs();
-          setInterval(() => this.pollStatus(), 15000);
+          let quickPolls = 0;
+          const quick = setInterval(() => {
+            this.pollStatus();
+            quickPolls++;
+            if (quickPolls >= 10 || this.modelStatus === 'RUNNING') {
+              clearInterval(quick);
+              setInterval(() => this.pollStatus(), 15000); // luego cada 15s
+            }
+          }, 3000);
           setInterval(() => this.loadLogs(), 20000);
         },
 

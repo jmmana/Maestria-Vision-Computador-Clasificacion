@@ -68,15 +68,16 @@ def get_model_status() -> str:
     """Retorna: RUNNING | STOPPED | STARTING | STOPPING | FAILED"""
     try:
         r = rekognition_client()
-        project_arn = MODEL_ARN.rsplit("/version/", 1)[0]
+        # Usar ProjectVersionArns directamente — más confiable que VersionNames
         resp = r.describe_project_versions(
-            ProjectArn=project_arn,
-            VersionNames=[MODEL_ARN.split("/")[-2]]
+            ProjectVersionArns=[MODEL_ARN]
         )
         versions = resp.get("ProjectVersionDescriptions", [])
         if not versions:
             return "STOPPED"
-        return versions[0].get("Status", "STOPPED")
+        status = versions[0].get("Status", "STOPPED")
+        log.info(f"Estado del modelo desde AWS: {status}")
+        return status
     except Exception as e:
         log.error(f"Error al consultar estado del modelo: {e}")
         return "UNKNOWN"
