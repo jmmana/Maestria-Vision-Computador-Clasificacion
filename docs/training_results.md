@@ -69,6 +69,6 @@
 
 ```
 Project ARN  : arn:aws:rekognition:us-east-1:XXXXXXXXXXXX:project/Argos/...
-Model ARN    : arn:aws:rekognition:us-east-1:XXXXXXXXXXXX:project/Argos/version/.../...
+Model ARN    : arn:aws:rekognition:us-east-1:442444704156:project/Argos/version/Argos.2026-05-24T18.36.39/1779665799778
 Prediction URL: (disponible vía SDK Boto3)
 ```
