@@ -35,6 +35,7 @@ MODEL_MAX_MIN  = int(os.getenv("MODEL_MAX_MINUTES", "60"))
 
 # ─── Estado del modelo (en memoria) ──────────────────────────────────────────
 model_started_at: Optional[datetime] = None
+_project_arn_cache: Optional[str] = None  # Cache del project ARN real (obtenido de describe_projects)
 
 # ─── Log de actividad (en memoria, últimas 50 entradas) ───────────────────────
 from collections import deque
@@ -64,13 +65,41 @@ def rekognition_client():
     return boto3.client("rekognition", region_name=AWS_REGION)
 
 
-def get_model_status() -> str:
-    """Retorna: RUNNING | STOPPED | STARTING | STOPPING | FAILED"""
+def _resolve_project_arn() -> Optional[str]:
+    """Obtiene el project ARN real desde describe_projects (con cache)."""
+    global _project_arn_cache
+    if _project_arn_cache:
+        return _project_arn_cache
     try:
         r = rekognition_client()
-        # Usar ProjectVersionArns directamente — más confiable que VersionNames
+        resp = r.describe_projects()
+        for p in resp.get("ProjectDescriptions", []):
+            arn = p.get("ProjectArn", "")
+            # Buscar el proyecto cuyo ARN sea prefijo del version ARN
+            if MODEL_ARN.startswith(arn.split("/version/")[0]):
+                _project_arn_cache = arn
+                log.info(f"Project ARN resuelto: {arn}")
+                return arn
+        log.error("No se encontró el proyecto en describe_projects")
+        return None
+    except Exception as e:
+        log.error(f"Error al resolver project ARN: {e}")
+        return None
+
+
+def get_model_status() -> str:
+    """Retorna: RUNNING | STOPPED | STARTING | STOPPING | FAILED | UNKNOWN"""
+    try:
+        r = rekognition_client()
+        project_arn = _resolve_project_arn()
+        if not project_arn:
+            log.error("No se pudo resolver el project ARN — verificando credenciales AWS")
+            return "UNKNOWN"
+        # Nombre de la versión: penúltimo segmento del version ARN
+        version_name = MODEL_ARN.split("/")[-2]
         resp = r.describe_project_versions(
-            ProjectVersionArns=[MODEL_ARN]
+            ProjectArn=project_arn,
+            VersionNames=[version_name],
         )
         versions = resp.get("ProjectVersionDescriptions", [])
         if not versions:
