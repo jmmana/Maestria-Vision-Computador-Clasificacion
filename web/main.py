@@ -73,14 +73,18 @@ def _resolve_project_arn() -> Optional[str]:
     try:
         r = rekognition_client()
         resp = r.describe_projects()
-        for p in resp.get("ProjectDescriptions", []):
+        projects = resp.get("ProjectDescriptions", [])
+        log.info(f"describe_projects devolvió {len(projects)} proyecto(s)")
+        for p in projects:
             arn = p.get("ProjectArn", "")
-            # Buscar el proyecto cuyo ARN sea prefijo del version ARN
-            if MODEL_ARN.startswith(arn.split("/version/")[0]):
+            log.info(f"  Proyecto encontrado: {arn}")
+            # El version ARN incluye el project ARN como prefijo antes de /version/
+            project_prefix = MODEL_ARN.split("/version/")[0]
+            if project_prefix == arn or arn.startswith(project_prefix):
                 _project_arn_cache = arn
                 log.info(f"Project ARN resuelto: {arn}")
                 return arn
-        log.error("No se encontró el proyecto en describe_projects")
+        log.error(f"No se encontró proyecto con prefijo '{MODEL_ARN.split('/version/')[0]}'")
         return None
     except Exception as e:
         log.error(f"Error al resolver project ARN: {e}")
