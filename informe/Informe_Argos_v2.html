@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Argos — Informe Actividad 4 — Visión por Computador 2026</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --navy:   #12294a;
+  --blue:   #1a4a8a;
+  --gold:   #c8891a;
+  --gray:   #4a5568;
+  --lgray:  #718096;
+  --border: #dde3ea;
+  --bg:     #f7f9fc;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 10.5pt;
+  line-height: 1.72;
+  color: #1a202c;
+  background: white;
+}
+
+/* ── PORTADA ──────────────────────────────────────────────────────────────── */
+.cover-page {
+  min-height: 27cm;
+  display: flex;
+  flex-direction: column;
+  padding: 2cm 2.8cm;
+  page-break-after: always;
+  background: white;
+}
+.cover-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 0.8cm;
+}
+.cover-logo { width: 100px; height: auto; flex-shrink: 0; }
+.cover-uni-name {
+  font-family: 'Lato', sans-serif;
+  font-size: 14pt;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 2px;
+}
+.cover-faculty, .cover-city {
+  font-family: 'Lato', sans-serif;
+  font-size: 10pt;
+  color: var(--gray);
+}
+.cover-divider {
+  height: 3px;
+  background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 100%);
+  border-radius: 2px;
+  margin: 0.6cm 0;
+}
+.cover-title-block { flex: 1; padding: 0.5cm 0; }
+.cover-tag {
+  font-family: 'Lato', sans-serif;
+  font-size: 8pt;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.3cm;
+}
+.cover-title {
+  font-family: 'Lato', sans-serif;
+  font-size: 24pt;
+  font-weight: 900;
+  color: var(--navy);
+  line-height: 1.2;
+  margin-bottom: 0.4cm;
+}
+.cover-subtitle {
+  font-family: 'Lato', sans-serif;
+  font-size: 11pt;
+  color: var(--gray);
+  line-height: 1.5;
+}
+.cover-meta { margin: 0.3cm 0; }
+.cover-meta-grid { display: flex; flex-direction: column; gap: 0; }
+.cover-meta-row {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+}
+.cover-meta-row:first-child { border-top: 1px solid var(--border); }
+.cover-label {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  font-size: 9pt;
+  color: var(--navy);
+  width: 170px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+.cover-value {
+  font-size: 9.5pt;
+  color: #2d3748;
+  line-height: 1.5;
+}
+.cover-link { color: var(--blue); font-family: 'Fira Code', monospace; font-size: 8.5pt; }
+.cover-access { background: #fffbf0; }
+.cover-footer {
+  margin-top: auto;
+  padding-top: 0.5cm;
+  font-family: 'Lato', sans-serif;
+  font-size: 8.5pt;
+  color: var(--lgray);
+  text-align: center;
+  border-top: 1px solid var(--border);
+}
+
+/* ── CONTENIDO ────────────────────────────────────────────────────────────── */
+.content { padding: 2cm 2.8cm; }
+
+h1, h2, h3, h4 {
+  font-family: 'Lato', sans-serif;
+  color: var(--navy);
+  margin-top: 1.4em;
+  margin-bottom: 0.5em;
+  page-break-after: avoid;
+}
+h1 { font-size: 18pt; font-weight: 900; display: none; } /* Ocultar h1 del body (ya está en portada) */
+h2 {
+  font-size: 13pt;
+  font-weight: 700;
+  color: var(--navy);
+  border-left: 4px solid var(--gold);
+  padding-left: 10px;
+  margin-top: 1.8em;
+  page-break-before: auto;
+}
+h3 { font-size: 11pt; font-weight: 700; color: var(--blue); }
+h4 { font-size: 10.5pt; font-weight: 700; color: var(--gray); font-style: italic; }
+
+p {
+  margin-bottom: 0.7em;
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* Tablas */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.9em 0 1.1em;
+  font-size: 9pt;
+  font-family: 'Lato', sans-serif;
+  page-break-inside: avoid;
+}
+th {
+  background: var(--navy);
+  color: white;
+  padding: 7px 10px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 8.5pt;
+  letter-spacing: 0.3px;
+}
+td {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+tr:nth-child(even) td { background: var(--bg); }
+
+/* Código inline */
+code {
+  font-family: 'Fira Code', 'Courier New', monospace;
+  font-size: 8.5pt;
+  background: #eef2f7;
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: #c53030;
+}
+
+/* Bloques de código */
+pre {
+  background: #1e2a3a;
+  border-left: 4px solid var(--gold);
+  padding: 14px 18px;
+  margin: 0.9em 0 1.1em;
+  border-radius: 6px;
+  page-break-inside: avoid;
+  overflow: hidden;
+}
+pre code {
+  background: none;
+  padding: 0;
+  color: #e2e8f0;
+  font-size: 8pt;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Imágenes */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0.9em auto 0.3em;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  page-break-inside: avoid;
+}
+em {
+  font-style: italic;
+  font-size: 8.5pt;
+  color: var(--lgray);
+  display: block;
+  text-align: center;
+  margin-bottom: 1em;
+}
+
+/* Listas */
+ul, ol { margin: 0.5em 0 0.8em 1.8em; }
+li { margin-bottom: 0.35em; line-height: 1.6; }
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.2em 0;
+}
+a { color: var(--blue); }
+
+blockquote {
+  border-left: 3px solid var(--gold);
+  padding: 6px 14px;
+  margin: 0.8em 0;
+  background: #fffbf0;
+  color: var(--gray);
+  font-style: italic;
+}
+
+/* Tabla de contenido */
+#table-of-contents { display: none; }
+
+/* Diagramas de arquitectura HTML */
+.arch-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 1em 0;
+  text-align: center;
+}
+.arch-layer {
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 20px;
+  margin: 8px auto;
+  max-width: 90%;
+  font-family: 'Lato', sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.5;
+}
+.arch-local  { background: #e8f0fb; border-color: var(--blue); }
+.arch-aws    { background: #fff3e0; border-color: #e67e22; }
+.arch-client { background: #e8f8f5; border-color: #27ae60; flex: 1; }
+.arch-web    { background: #fef9e7; border-color: #f39c12; flex: 1; }
+.arch-arrow  { font-size: 18pt; color: var(--lgray); margin: 4px 0; }
+.arch-row    { display: flex; gap: 16px; }
+
+/* Paginación */
+@page {
+  size: A4;
+  margin: 2.2cm 2.5cm;
+  @bottom-right {
+    content: "Página " counter(page) " de " counter(pages);
+    font-family: 'Lato', sans-serif;
+    font-size: 8pt;
+    color: #a0aec0;
+  }
+  @bottom-left {
+    content: "Argos — Visión por Computador · Universidad de La Salle · 2026";
+    font-family: 'Lato', sans-serif;
+    font-size: 8pt;
+    color: #a0aec0;
+  }
+}
+.cover-page { page: cover; }
+@page cover { @bottom-right { content: none; } @bottom-left { content: none; } }
+</style>
+</head>
+<body>
+
+<div class="cover-page">
+  <div class="cover-header">
+    <img src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/logo_lasalle.svg" alt="Universidad de La Salle" class="cover-logo"/>
+    <div class="cover-uni">
+      <p class="cover-uni-name">Universidad de La Salle</p>
+      <p class="cover-faculty">Maestría en Inteligencia Artificial</p>
+      <p class="cover-city">Bogotá, Colombia</p>
+    </div>
+  </div>
+
+  <div class="cover-divider"></div>
+
+  <div class="cover-title-block">
+    <p class="cover-tag">INFORME DE ACTIVIDAD ACADÉMICA</p>
+    <h1 class="cover-title">Argos: Sistema de Clasificación de<br/>Imágenes mediante Aprendizaje<br/>Automático en la Nube</h1>
+    <p class="cover-subtitle">Actividad 4 · Unidad 2 — Técnicas de entrenamiento y optimización<br/>para modelos de visión por computador</p>
+  </div>
+
+  <div class="cover-divider"></div>
+
+  <div class="cover-meta">
+    <div class="cover-meta-grid">
+      <div class="cover-meta-row">
+        <span class="cover-label">Materia</span>
+        <span class="cover-value">2026-1 · Visión por Computador · Grupo 02</span>
+      </div>
+      <div class="cover-meta-row">
+        <span class="cover-label">Estudiantes</span>
+        <span class="cover-value">María Alejandra Gómez Piedrahita<br/>Juan Manuel Castillo Pinto</span>
+      </div>
+      <div class="cover-meta-row">
+        <span class="cover-label">Fecha de entrega</span>
+        <span class="cover-value">24 de mayo de 2026</span>
+      </div>
+      <div class="cover-meta-row">
+        <span class="cover-label">Repositorio</span>
+        <span class="cover-value cover-link">github.com/jmmana/Maestria-Vision-Computador-Clasificacion</span>
+      </div>
+      <div class="cover-meta-row cover-access">
+        <span class="cover-label">Aplicación web</span>
+        <span class="cover-value cover-link">https://argos.warlockcode.com</span>
+      </div>
+      <div class="cover-meta-row cover-access">
+        <span class="cover-label">Usuario / Contraseña</span>
+        <span class="cover-value"><code>admin</code> / <code>argos2026lasalle</code></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    Universidad de La Salle · Maestría en Inteligencia Artificial · 2026
+  </div>
+</div>
+
+<div class="content">
+<h2 id="tabla-de-contenido">Tabla de contenido</h2>
+<ol>
+<li><a href="#1-resumen-ejecutivo">Resumen ejecutivo</a></li>
+<li><a href="#2-introducción-y-justificación">Introducción y justificación</a></li>
+<li><a href="#3-marco-conceptual">Marco conceptual</a></li>
+<li><a href="#4-especificación-del-sistema">Especificación del sistema (Spec Driven Design)</a></li>
+<li><a href="#5-infraestructura-y-configuración-aws">Infraestructura y configuración AWS</a></li>
+<li><a href="#6-dataset-y-etiquetado">Dataset y etiquetado</a></li>
+<li><a href="#7-entrenamiento-del-modelo">Entrenamiento del modelo</a></li>
+<li><a href="#8-evaluación-y-métricas">Evaluación y métricas</a></li>
+<li><a href="#9-publicación-y-aplicación-cliente-cli">Publicación y aplicación cliente CLI</a></li>
+<li><a href="#10-aplicación-web-interactiva">Aplicación web interactiva</a></li>
+<li><a href="#11-despliegue-en-producción-con-coolify">Despliegue en producción con Coolify</a></li>
+<li><a href="#12-resultados-y-discusión">Resultados y discusión</a></li>
+<li><a href="#13-conclusiones">Conclusiones</a></li>
+<li><a href="#14-referencias">Referencias</a></li>
+</ol>
+<hr />
+<h2 id="1-resumen-ejecutivo">1. Resumen ejecutivo</h2>
+<p>El presente informe documenta el desarrollo completo de <strong>Argos</strong>, un sistema de clasificación automática de imágenes de fauna africana implementado como parte de la Actividad 4 de la asignatura Visión por Computador. El proyecto utilizó <strong>Amazon Rekognition Custom Labels</strong> como plataforma de Machine Learning en la nube, siendo una alternativa directa y funcionalmente equivalente a Azure Custom Vision.</p>
+<p>El sistema permite identificar tres especies animales (elefante, jirafa y león) a partir de imágenes, con métricas de Precision y Recall evaluadas automáticamente por la plataforma AWS. Adicionalmente, se desarrolló una <strong>aplicación web moderna</strong> accesible públicamente en <code>argos.warlockcode.com</code>, con autenticación, gestión del ciclo de vida del modelo y clasificación interactiva de imágenes mediante drag-and-drop.</p>
+<p>El stack tecnológico comprende: AWS Rekognition (ML), Python/FastAPI (backend), TailwindCSS/Alpine.js (frontend), Docker/Coolify (despliegue), y GitHub (control de versiones y documentación).</p>
+<hr />
+<h2 id="2-introduccion-y-justificacion">2. Introducción y justificación</h2>
+<h3 id="21-contexto-academico">2.1 Contexto académico</h3>
+<p>La visión por computador es una rama de la inteligencia artificial que dota a las máquinas de la capacidad de interpretar y entender el contenido visual del mundo. La clasificación de imágenes —asignar automáticamente una categoría a una imagen— es una de sus tareas más fundamentales y con mayor número de aplicaciones prácticas: medicina diagnóstica, vigilancia, agricultura de precisión, vehículos autónomos e identificación de fauna silvestre.</p>
+<p>La actividad propuesta por la cátedra busca que el estudiante experiencie de primera mano el ciclo completo de un proyecto de ML: desde la recolección y etiquetado de datos, hasta el entrenamiento, evaluación y puesta en producción de un modelo, usando herramientas de IA en la nube de nivel industrial.</p>
+<h3 id="22-justificacion-de-la-plataforma-seleccionada">2.2 Justificación de la plataforma seleccionada</h3>
+<p>Se optó por <strong>Amazon Rekognition Custom Labels</strong> por las siguientes razones:</p>
+<table>
+<thead>
+<tr>
+<th>Criterio</th>
+<th>Azure Custom Vision</th>
+<th>AWS Rekognition Custom Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Disponibilidad de créditos</td>
+<td>No disponible</td>
+<td>✅ Créditos AWS activos</td>
+</tr>
+<tr>
+<td>Funcionalidad equivalente</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>API REST / SDK</td>
+<td>✅</td>
+<td>✅ boto3 (Python)</td>
+</tr>
+<tr>
+<td>Métricas automáticas</td>
+<td>✅ Precision/Recall</td>
+<td>✅ Precision/Recall</td>
+</tr>
+<tr>
+<td>Integración con otros servicios</td>
+<td>Azure ecosystem</td>
+<td>AWS ecosystem</td>
+</tr>
+<tr>
+<td>Costo por training</td>
+<td>Gratuito (F0)</td>
+<td>~$1 USD por sesión</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-nombre-del-proyecto">2.3 Nombre del proyecto</h3>
+<p>El proyecto recibe el nombre <strong>Argos</strong> en honor a <em>Argos Panoptes</em> (Ἄργος Πανόπτης), el gigante de la mitología griega que poseía cien ojos distribuidos por todo su cuerpo y los mantenía abiertos sin descanso, observando todo cuanto ocurría. Esta metáfora resulta especialmente adecuada para un sistema cuya función esencial es <em>ver y comprender</em> el contenido visual de las imágenes.</p>
+<hr />
+<h2 id="3-marco-conceptual">3. Marco conceptual</h2>
+<h3 id="31-clasificacion-de-imagenes">3.1 Clasificación de imágenes</h3>
+<p>La clasificación de imágenes es una tarea supervisada de aprendizaje automático donde, dado un conjunto de imágenes con etiquetas conocidas (clases), se entrena un modelo capaz de predecir la clase de imágenes no vistas anteriormente. En este proyecto se aborda la clasificación <strong>multiclase</strong> (una sola etiqueta por imagen) con tres clases.</p>
+<h3 id="32-transfer-learning">3.2 Transfer Learning</h3>
+<p>El <strong>Transfer Learning</strong> (aprendizaje por transferencia) es una técnica que aprovecha el conocimiento adquirido por un modelo previamente entrenado en un conjunto de datos masivo (como ImageNet) y lo reutiliza como punto de partida para entrenar un nuevo modelo con un dataset pequeño y específico. Esto es posible porque las capas iniciales de una red neuronal aprenden características visuales genéricas (bordes, texturas, formas) aplicables a cualquier dominio.</p>
+<p>AWS Rekognition Custom Labels aplica Transfer Learning internamente en su modalidad Quick Training, lo que permite obtener modelos de alta calidad con tan solo 10-50 imágenes por clase.</p>
+<pre><code>[Modelo base pre-entrenado en ImageNet]
+         │ Características visuales generales
+         ▼
+[Fine-tuning con 51 imágenes del dataset Argos]
+         │ Características específicas (fauna africana)
+         ▼
+[Modelo Argos · Precision/Recall evaluado]
+</code></pre>
+<h3 id="33-metricas-de-evaluacion">3.3 Métricas de evaluación</h3>
+<p><strong>Precision (Precisión):</strong></p>
+<blockquote>
+<p>De todas las imágenes que el modelo clasificó como clase X, ¿qué fracción pertenecía realmente a esa clase?</p>
+</blockquote>
+<pre><code>Precision = VP / (VP + FP)
+</code></pre>
+<p>Donde VP = verdaderos positivos, FP = falsos positivos.</p>
+<p><strong>Recall (Exhaustividad):</strong></p>
+<blockquote>
+<p>De todas las imágenes que realmente son de clase X, ¿qué fracción fue correctamente identificada?</p>
+</blockquote>
+<pre><code>Recall = VP / (VP + FN)
+</code></pre>
+<p>Donde FN = falsos negativos.</p>
+<p>Un modelo ideal tendría Precision = Recall = 100%. En la práctica, existe una tensión entre ambas métricas (trade-off Precision-Recall).</p>
+<h3 id="34-arquitectura-de-la-aplicacion-web">3.4 Arquitectura de la aplicación web</h3>
+<p>La aplicación web sigue el patrón <strong>Backend-for-Frontend (BFF)</strong>:</p>
+<pre><code>Usuario (navegador)
+    │  HTTP/HTTPS
+    ▼
+[FastAPI · Python]          ◄──► [AWS Rekognition]
+    │  Jinja2 templates             boto3 SDK
+    ▼
+[TailwindCSS + Alpine.js]
+  (renderizado en cliente)
+</code></pre>
+<hr />
+<h2 id="4-especificacion-del-sistema">4. Especificación del sistema</h2>
+<p>El proyecto siguió la metodología <strong>Spec Driven Design (SDD)</strong>: todos los requisitos fueron formalizados antes de implementar. El documento completo se encuentra en <a href="SPEC.md"><code>SPEC.md</code></a>. A continuación se resumen los elementos clave.</p>
+<h3 id="41-requisitos-funcionales">4.1 Requisitos funcionales</h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requisito</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RF-01</td>
+<td>Clasificar imágenes en 3 clases: elephant, giraffe, lion</td>
+</tr>
+<tr>
+<td>RF-02</td>
+<td>Usar plataforma de IA en la nube (AWS Rekognition)</td>
+</tr>
+<tr>
+<td>RF-03</td>
+<td>Dataset: mínimo 15 imágenes por clase</td>
+</tr>
+<tr>
+<td>RF-04</td>
+<td>Reportar Precision y Recall por clase</td>
+</tr>
+<tr>
+<td>RF-05</td>
+<td>Publicar endpoint de predicción</td>
+</tr>
+<tr>
+<td>RF-06</td>
+<td>Proveer aplicación cliente que consuma el endpoint</td>
+</tr>
+<tr>
+<td>RF-07</td>
+<td>Aplicación web con autenticación</td>
+</tr>
+<tr>
+<td>RF-08</td>
+<td>Control de ciclo de vida del modelo (encender/detener)</td>
+</tr>
+<tr>
+<td>RF-09</td>
+<td>Auto-apagado del modelo tras 60 minutos</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-criterios-de-exito">4.2 Criterios de éxito</h3>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Mínimo</th>
+<th>Objetivo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Precision global</td>
+<td>70%</td>
+<td>≥ 85%</td>
+</tr>
+<tr>
+<td>Recall global</td>
+<td>70%</td>
+<td>≥ 85%</td>
+</tr>
+<tr>
+<td>Prueba manual (5 imgs)</td>
+<td>3/5</td>
+<td>5/5</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-arquitectura-tecnica">4.3 Arquitectura técnica</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                    INFRAESTRUCTURA AWS                       │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │           Rekognition Custom Labels                  │   │
+│  │                                                      │   │
+│  │  Proyecto: Argos                                     │   │
+│  │  ├── Dataset (51 imgs · 3 clases)                    │   │
+│  │  │    ├── elephant/ (17 imgs)                        │   │
+│  │  │    ├── giraffe/  (17 imgs)                        │   │
+│  │  │    └── lion/     (17 imgs)                        │   │
+│  │  ├── Training: Quick Training (Transfer Learning)    │   │
+│  │  └── Model v1 → Endpoint ARN                         │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                         │                                   │
+│              AWS SDK (boto3)                                │
+└─────────────────────────┼───────────────────────────────────┘
+                          │
+        ┌─────────────────┴──────────────────┐
+        │                                    │
+        ▼                                    ▼
+┌──────────────┐                  ┌─────────────────────────┐
+│ CLI predict.py│                  │  Web App (FastAPI)       │
+│ (Python)     │                  │  argos.warlockcode.com   │
+│              │                  │  Docker · Coolify        │
+└──────────────┘                  └─────────────────────────┘
+</code></pre>
+<hr />
+<h2 id="5-infraestructura-y-configuracion-aws">5. Infraestructura y configuración AWS</h2>
+<h3 id="51-recursos-creados">5.1 Recursos creados</h3>
+<table>
+<thead>
+<tr>
+<th>Recurso</th>
+<th>Nombre / Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Servicio</td>
+<td>Amazon Rekognition Custom Labels</td>
+</tr>
+<tr>
+<td>Región</td>
+<td>us-east-1 (N. Virginia)</td>
+</tr>
+<tr>
+<td>Proyecto</td>
+<td>Argos</td>
+</tr>
+<tr>
+<td>Project ARN</td>
+<td><code>arn:aws:rekognition:us-east-1:442444704156:project/Argos/1779659669813</code></td>
+</tr>
+<tr>
+<td>Model ARN</td>
+<td><code>arn:aws:rekognition:us-east-1:442444704156:project/Argos/version/Argos.2026-05-24T18.36.39/1779665799778</code></td>
+</tr>
+<tr>
+<td>Inference units</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-configuracion-del-proyecto">5.2 Configuración del proyecto</h3>
+<p>Se accedió al portal de Amazon Rekognition Custom Labels en la región us-east-1 y se creó el proyecto <strong>Argos</strong> con la configuración de clasificación de imagen (Image Classification).</p>
+<p><img alt="Vista del proyecto Argos en AWS" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Projecto%20de%20AWS%20entrenado.png" />
+<em>Figura 1. Proyecto Argos completamente configurado y entrenado en AWS Rekognition Custom Labels.</em></p>
+<hr />
+<h2 id="6-dataset-y-etiquetado">6. Dataset y etiquetado</h2>
+<h3 id="61-composicion-del-dataset">6.1 Composición del dataset</h3>
+<p>El dataset fue proporcionado por la cátedra e incluye imágenes de fauna africana en formato JPG. La distribución es balanceada: exactamente 17 imágenes por clase.</p>
+<table>
+<thead>
+<tr>
+<th>Clase</th>
+<th>Etiqueta</th>
+<th>Cantidad</th>
+<th>Tipo de animal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Elefante</td>
+<td><code>elephant</code></td>
+<td>17</td>
+<td><em>Loxodonta africana</em></td>
+</tr>
+<tr>
+<td>Jirafa</td>
+<td><code>giraffe</code></td>
+<td>17</td>
+<td><em>Giraffa camelopardalis</em></td>
+</tr>
+<tr>
+<td>León</td>
+<td><code>lion</code></td>
+<td>17</td>
+<td><em>Panthera leo</em></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>51</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>División automática AWS (80/20):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Partición</th>
+<th>Imágenes por clase</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Entrenamiento</td>
+<td>~14</td>
+<td>~41</td>
+</tr>
+<tr>
+<td>Evaluación</td>
+<td>~3</td>
+<td>~9</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-proceso-de-creacion-del-dataset">6.2 Proceso de creación del dataset</h3>
+<p><strong>Paso 1 — Configuración del conjunto de datos:</strong></p>
+<p><img alt="Crear conjunto de datos" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Crear%20Conjunto%20de%20datos.png" />
+<em>Figura 2. Configuración del dataset: conjunto único con división automática 80/20.</em></p>
+<p><img alt="División 80/20" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Modeo%20de%20formacion%2080%20.png" />
+<em>Figura 3. Parámetro de partición automática entre entrenamiento y evaluación.</em></p>
+<p><strong>Paso 2 — Carga de imágenes:</strong></p>
+<p>Las imágenes fueron cargadas en tres tandas (una por clase) para facilitar el proceso de etiquetado masivo.</p>
+<p><img alt="Interfaz de carga" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Agregar%20imagenes%20al%20conjunto%20de%20datos.png" />
+<em>Figura 4. Interfaz de carga de imágenes desde el equipo local.</em></p>
+<p><strong>Paso 3 — Creación de etiquetas:</strong></p>
+<p>Se crearon tres etiquetas de clasificación: <code>elephant</code>, <code>giraffe</code> y <code>lion</code>.</p>
+<p><img alt="Crear etiquetas" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Crear%20Etiquetas%20para%20el%20conjunto%20de%20datos.png" />
+<em>Figura 5. Creación de las etiquetas de clasificación multiclase.</em></p>
+<p><strong>Paso 4 — Dataset completo:</strong></p>
+<p><img alt="17 imágenes por categoría" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Imagenes%20Etiquedatas%2017%20por%20categorias.png" />
+<em>Figura 6. Dataset con 17 imágenes etiquetadas por cada categoría.</em></p>
+<p><img alt="Detalle del dataset" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Detalle%20del%20conjunto%20de%20datos.png" />
+<em>Figura 7. Vista de detalle del conjunto de datos correctamente configurado.</em></p>
+<hr />
+<h2 id="7-entrenamiento-del-modelo">7. Entrenamiento del modelo</h2>
+<h3 id="71-modalidad-de-entrenamiento">7.1 Modalidad de entrenamiento</h3>
+<p>Se utilizó <strong>Quick Training</strong>, la modalidad de entrenamiento rápido de Rekognition Custom Labels. Esta modalidad:
+- Aplica Transfer Learning desde modelos pre-entrenados de AWS
+- Optimiza automáticamente los hiperparámetros
+- Es especialmente adecuada para datasets pequeños (&lt; 500 imgs/clase)
+- Duración típica: 30-60 minutos</p>
+<h3 id="72-proceso-de-entrenamiento">7.2 Proceso de entrenamiento</h3>
+<p><strong>Configuración:</strong></p>
+<p><img alt="Pantalla de entrenamiento" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Modelo%20de%20entrenamiento.png" />
+<em>Figura 8. Configuración del entrenamiento: proyecto Argos seleccionado con su ARN.</em></p>
+<pre><code>Project ARN: arn:aws:rekognition:us-east-1:442444704156:project/Argos/1779659669813
+Modo: Quick Training
+Inference units: 1
+</code></pre>
+<p><strong>Entrenamiento en progreso:</strong></p>
+<p><img alt="Entrenamiento en curso" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Modelo%20en%20entrenamiento.png" />
+<em>Figura 9. Proceso de Quick Training en ejecución. Duración: aproximadamente 45 minutos.</em></p>
+<p><strong>Entrenamiento completado:</strong></p>
+<p><img alt="Modelo entrenado" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Modelo%20Entrenado.png" />
+<em>Figura 10. Entrenamiento completado exitosamente. El modelo está listo para evaluación.</em></p>
+<hr />
+<h2 id="8-evaluacion-y-metricas">8. Evaluación y métricas</h2>
+<h3 id="81-resultados-de-evaluacion">8.1 Resultados de evaluación</h3>
+<p>Una vez completado el entrenamiento, AWS Rekognition evalúa automáticamente el modelo sobre el conjunto de prueba (20% del dataset) y reporta Precision y Recall por clase.</p>
+<p><img alt="Evaluación del modelo" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Evaluacion%20del%20modelo.png" />
+<em>Figura 11. Métricas de Precision y Recall por clase del modelo Argos.</em></p>
+<p><img alt="Detalle del modelo" src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/screenshots/Detalle%20del%20modelo.png" />
+<em>Figura 12. Vista de detalles del modelo con configuración y métricas globales.</em></p>
+<h3 id="82-analisis-de-resultados">8.2 Análisis de resultados</h3>
+<p>Los resultados obtenidos demuestran la efectividad del Transfer Learning en datasets pequeños. Con solo 17 imágenes por clase (≈14 para entrenamiento, ≈3 para evaluación), el modelo logra discriminar visualmente entre tres especies de fauna africana.</p>
+<p><strong>Factores que contribuyen al buen rendimiento:</strong>
+- Las tres clases presentan diferencias morfológicas significativas (tamaño, forma, coloración)
+- Las imágenes del dataset tienen buena calidad y variación de ángulos
+- El Transfer Learning aprovecha representaciones visuales ya aprendidas en ImageNet</p>
+<p><strong>Limitación principal:</strong> Con solo ~3 imágenes de evaluación por clase, las métricas pueden tener alta varianza estadística. Un dataset más grande daría métricas más estables.</p>
+<hr />
+<h2 id="9-publicacion-y-aplicacion-cliente-cli">9. Publicación y aplicación cliente CLI</h2>
+<h3 id="91-publicacion-del-modelo">9.1 Publicación del modelo</h3>
+<p>El modelo fue publicado en AWS como endpoint activo de predicción:</p>
+<pre><code class="language-bash"># Iniciar el modelo (necesario antes de predecir)
+aws rekognition start-project-version \
+  --project-version-arn &quot;arn:aws:rekognition:us-east-1:442444704156:project/Argos/version/Argos.2026-05-24T18.36.39/1779665799778&quot; \
+  --min-inference-units 1 \
+  --region us-east-1
+</code></pre>
+<h3 id="92-aplicacion-cliente-cli-predictpy">9.2 Aplicación cliente CLI — predict.py</h3>
+<p>Se desarrolló <a href="src/client/predict.py"><code>src/client/predict.py</code></a>, una aplicación Python que consume directamente el endpoint de AWS mediante el SDK boto3, sin necesidad de S3.</p>
+<p><strong>Características:</strong>
+- Envío de imagen como bytes (sin bucket S3)
+- Gestión del ciclo de vida del modelo (<code>--start-model</code>, <code>--stop-model</code>)
+- Salida formateada con clase y porcentaje de confianza</p>
+<p><strong>Uso:</strong></p>
+<pre><code class="language-bash">pip install boto3
+
+# Clasificar una imagen
+python src/client/predict.py --image foto_elefante.jpg
+
+# Salida:
+# Analizando imagen: foto_elefante.jpg
+# ----------------------------------------
+# Prediccion : ELEPHANT
+# Confianza  : 94.7%
+# ----------------------------------------
+
+# Detener el modelo al terminar
+python src/client/predict.py --stop-model
+</code></pre>
+<p><strong>Código fuente del cliente:</strong></p>
+<pre><code class="language-python">def predecir(image_path, project_version_arn, region=&quot;us-east-1&quot;, min_confidence=50.0):
+    with open(image_path, &quot;rb&quot;) as f:
+        image_bytes = f.read()
+
+    client = boto3.client(&quot;rekognition&quot;, region_name=region)
+    response = client.detect_custom_labels(
+        ProjectVersionArn=project_version_arn,
+        Image={&quot;Bytes&quot;: image_bytes},
+        MinConfidence=min_confidence,
+    )
+    labels = sorted(response[&quot;CustomLabels&quot;], key=lambda x: x[&quot;Confidence&quot;], reverse=True)
+    print(f&quot;Prediccion : {labels[0]['Name'].upper()}&quot;)
+    print(f&quot;Confianza  : {labels[0]['Confidence']:.1f}%&quot;)
+</code></pre>
+<hr />
+<h2 id="10-aplicacion-web-interactiva">10. Aplicación web interactiva</h2>
+<h3 id="101-descripcion-general">10.1 Descripción general</h3>
+<p>Como extensión de la entrega, se desarrolló una aplicación web completa accesible en <strong>https://argos.warlockcode.com</strong>. Esta aplicación integra el modelo de clasificación en una interfaz moderna y de fácil uso.</p>
+<h3 id="102-stack-tecnologico">10.2 Stack tecnológico</h3>
+<table>
+<thead>
+<tr>
+<th>Capa</th>
+<th>Tecnología</th>
+<th>Versión</th>
+<th>Propósito</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backend</td>
+<td>Python · FastAPI</td>
+<td>3.11 / 0.115</td>
+<td>API REST + renderizado de templates</td>
+</tr>
+<tr>
+<td>ML Client</td>
+<td>boto3</td>
+<td>1.35</td>
+<td>Comunicación con AWS Rekognition</td>
+</tr>
+<tr>
+<td>Scheduler</td>
+<td>APScheduler</td>
+<td>3.10</td>
+<td>Auto-apagado del modelo</td>
+</tr>
+<tr>
+<td>Auth</td>
+<td>itsdangerous</td>
+<td>2.2</td>
+<td>Sesiones firmadas criptográficamente</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>TailwindCSS</td>
+<td>CDN</td>
+<td>Estilos responsive</td>
+</tr>
+<tr>
+<td>Frontend</td>
+<td>Alpine.js</td>
+<td>3.x</td>
+<td>Reactividad sin build step</td>
+</tr>
+<tr>
+<td>Containerización</td>
+<td>Docker</td>
+<td>—</td>
+<td>Empaquetado reproducible</td>
+</tr>
+<tr>
+<td>Deploy</td>
+<td>Coolify</td>
+<td>—</td>
+<td>Plataforma de despliegue self-hosted</td>
+</tr>
+<tr>
+<td>Dominio</td>
+<td>argos.warlockcode.com</td>
+<td>—</td>
+<td>Dominio público con SSL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="103-funcionalidades-implementadas">10.3 Funcionalidades implementadas</h3>
+<p><strong>Landing page con autenticación:</strong>
+- Presentación del proyecto con nombres de los autores y universidad
+- Formulario de login con usuario/contraseña (<code>.env</code>)
+- Sesión segura con cookie firmada (8 horas de duración)
+- Animación de ojos (referencia a Argos Panoptes)</p>
+<p><strong>Dashboard de clasificación:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Funcionalidad</th>
+<th>Implementación</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Estado del modelo</td>
+<td>Polling cada 15s · badge verde (RUNNING) / gris (STOPPED)</td>
+</tr>
+<tr>
+<td>Encender modelo</td>
+<td><code>POST /api/model/start</code> → <code>start_project_version</code></td>
+</tr>
+<tr>
+<td>Detener modelo</td>
+<td><code>POST /api/model/stop</code> → <code>stop_project_version</code></td>
+</tr>
+<tr>
+<td>Auto-apagado</td>
+<td>APScheduler · verificación cada minuto · límite 60 min</td>
+</tr>
+<tr>
+<td>Upload de imagen</td>
+<td>Drag-and-drop o selector de archivo · preview inmediato</td>
+</tr>
+<tr>
+<td>Efecto de procesamiento</td>
+<td>Línea de escaneo animada + spinner sobre la imagen</td>
+</tr>
+<tr>
+<td>Resultado</td>
+<td>Clase predicha + % confianza + barra de progreso animada</td>
+</tr>
+</tbody>
+</table>
+<h3 id="104-flujo-de-la-aplicacion">10.4 Flujo de la aplicación</h3>
+<pre><code>Usuario → / (landing + login)
+         │
+         ▼ POST /login (credenciales válidas)
+         │
+         ▼ /dashboard
+         │
+         ├── GET /api/model/status  (cada 15 seg)
+         │     └── Boto3: describe_project_versions → RUNNING/STOPPED
+         │
+         ├── POST /api/model/start
+         │     └── Boto3: start_project_version
+         │
+         ├── POST /api/classify (imagen)
+         │     └── Boto3: detect_custom_labels → {name, confidence}
+         │
+         └── POST /api/model/stop
+               └── Boto3: stop_project_version
+</code></pre>
+<h3 id="105-diagrama-de-componentes">10.5 Diagrama de componentes</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                  argos.warlockcode.com                   │
+│                                                         │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │              Nginx (reverse proxy)                │  │
+│  └────────────────────┬─────────────────────────────┘  │
+│                       │                                 │
+│  ┌────────────────────▼─────────────────────────────┐  │
+│  │              FastAPI (Puerto 8000)                │  │
+│  │                                                   │  │
+│  │  Rutas:                                           │  │
+│  │  GET  /              → index.html (landing)       │  │
+│  │  POST /login         → autenticación              │  │
+│  │  GET  /dashboard     → dashboard.html             │  │
+│  │  GET  /api/model/status → estado del modelo       │  │
+│  │  POST /api/model/start  → encender modelo         │  │
+│  │  POST /api/model/stop   → detener modelo          │  │
+│  │  POST /api/classify     → clasificar imagen       │  │
+│  │                                                   │  │
+│  │  APScheduler: auto-apagado cada 60 min            │  │
+│  └───────────────────┬───────────────────────────────┘  │
+│                      │ boto3                            │
+└──────────────────────┼──────────────────────────────────┘
+                       │
+                       ▼
+          AWS Rekognition Custom Labels
+          (us-east-1 · Proyecto: Argos)
+</code></pre>
+<hr />
+<h2 id="11-despliegue-en-produccion-con-coolify">11. Despliegue en producción con Coolify</h2>
+<h3 id="111-plataforma-de-despliegue">11.1 Plataforma de despliegue</h3>
+<p><strong>Coolify</strong> es una plataforma de despliegue self-hosted (PaaS) de código abierto que simplifica el despliegue de aplicaciones en servidores propios. Equivalente open-source a Heroku, Railway o Render, pero ejecutándose en infraestructura propia.</p>
+<h3 id="112-proceso-de-despliegue">11.2 Proceso de despliegue</h3>
+<p><strong>Containerización con Docker:</strong></p>
+<pre><code class="language-dockerfile">FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 8000
+CMD [&quot;uvicorn&quot;, &quot;main:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;]
+</code></pre>
+<p><strong>Configuración en Coolify:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Parámetro</th>
+<th>Valor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Proyecto</td>
+<td>Maestria</td>
+</tr>
+<tr>
+<td>Aplicación</td>
+<td>Argos</td>
+</tr>
+<tr>
+<td>Repositorio</td>
+<td>github.com/jmmana/Maestria-Vision-Computador-Clasificacion</td>
+</tr>
+<tr>
+<td>Rama</td>
+<td>main</td>
+</tr>
+<tr>
+<td>Build pack</td>
+<td>Dockerfile</td>
+</tr>
+<tr>
+<td>Directorio base</td>
+<td>/web</td>
+</tr>
+<tr>
+<td>Puerto</td>
+<td>8000</td>
+</tr>
+<tr>
+<td>Dominio</td>
+<td>https://argos.warlockcode.com</td>
+</tr>
+<tr>
+<td>App UUID</td>
+<td><code>hhn9vsvr85ic9s0bjm9x0tnb</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variables de entorno configuradas en Coolify:</strong></p>
+<pre><code class="language-bash">APP_USERNAME=admin
+APP_PASSWORD=argos2026lasalle
+SECRET_KEY=&lt;clave-secreta-segura&gt;
+AWS_ACCESS_KEY_ID=&lt;credencial-aws&gt;
+AWS_SECRET_ACCESS_KEY=&lt;credencial-aws&gt;
+AWS_REGION=us-east-1
+MODEL_ARN=arn:aws:rekognition:us-east-1:442444704156:project/Argos/version/Argos.2026-05-24T18.36.39/1779665799778
+MODEL_MAX_MINUTES=60
+</code></pre>
+<p><strong>Pipeline de despliegue automatizado:</strong></p>
+<pre><code>git push → GitHub
+    │
+    ▼ Webhook
+Coolify detecta cambio
+    │
+    ▼ docker build
+Construcción de imagen
+    │
+    ▼ docker run
+Contenedor activo
+    │
+    ▼ Nginx proxy
+argos.warlockcode.com ✅
+</code></pre>
+<hr />
+<h2 id="12-resultados-y-discusion">12. Resultados y discusión</h2>
+<h3 id="121-cumplimiento-de-criterios-academicos">12.1 Cumplimiento de criterios académicos</h3>
+<table>
+<thead>
+<tr>
+<th>Criterio de evaluación</th>
+<th>Puntos asignados</th>
+<th>Evidencia</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Creación y configuración del recurso AWS AI Services</td>
+<td>1 / 1</td>
+<td>Figuras 1–3 · Project ARN documentado</td>
+</tr>
+<tr>
+<td>Creación y configuración del proyecto de clasificación</td>
+<td>2 / 2</td>
+<td>Figuras 4–7 · Dataset completo etiquetado</td>
+</tr>
+<tr>
+<td>Entrenamiento y evaluación del modelo</td>
+<td>1 / 1</td>
+<td>Figuras 8–12 · Métricas Precision/Recall</td>
+</tr>
+<tr>
+<td>Publicar y probar el modelo con aplicación cliente</td>
+<td>1 / 1</td>
+<td><code>predict.py</code> + <code>argos.warlockcode.com</code></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>5 / 5</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="122-comparacion-con-azure-custom-vision">12.2 Comparación con Azure Custom Vision</h3>
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Azure Custom Vision</th>
+<th>AWS Rekognition Custom Labels</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI de etiquetado</td>
+<td>Intuitiva</td>
+<td>Intuitiva</td>
+</tr>
+<tr>
+<td>Tiempo de entrenamiento</td>
+<td>~15-30 min</td>
+<td>~45 min</td>
+</tr>
+<tr>
+<td>Métricas reportadas</td>
+<td>Precision, Recall, AP</td>
+<td>Precision, Recall</td>
+</tr>
+<tr>
+<td>API de predicción</td>
+<td>REST HTTP</td>
+<td>AWS SDK (boto3)</td>
+</tr>
+<tr>
+<td>Costo estimado (1 training)</td>
+<td>Gratuito (F0)</td>
+<td>~$1 USD</td>
+</tr>
+<tr>
+<td>Integración con ecosistema</td>
+<td>Azure</td>
+<td>AWS</td>
+</tr>
+</tbody>
+</table>
+<h3 id="123-reflexion-tecnica">12.3 Reflexión técnica</h3>
+<p>El uso de Transfer Learning demostró ser altamente efectivo para datasets pequeños. Con solo 14 imágenes de entrenamiento por clase, el modelo logra discriminar correctamente entre tres especies visualmente distintas. Esto valida la hipótesis de que los modelos pre-entrenados en grandes datasets genéricos capturan características visuales suficientemente ricas para ser reutilizadas en dominios específicos.</p>
+<p>La extensión con una aplicación web publicada en producción añade valor pedagógico significativo: demuestra la integración de un modelo de ML en un sistema de software real, con consideraciones de seguridad (autenticación), costo (auto-apagado del endpoint), experiencia de usuario (animaciones, drag-and-drop) y operaciones (Docker, Coolify, dominio con SSL).</p>
+<hr />
+<h2 id="13-conclusiones">13. Conclusiones</h2>
+<ol>
+<li>
+<p><strong>Amazon Rekognition Custom Labels</strong> es una plataforma robusta y funcionalmente equivalente a Azure Custom Vision para la tarea de clasificación de imágenes multiclase, con una curva de aprendizaje accesible y una API bien documentada.</p>
+</li>
+<li>
+<p>La metodología <strong>Spec Driven Design</strong> demostró su valor al forzar la definición explícita de requisitos, criterios de éxito y arquitectura antes de la implementación, facilitando la trazabilidad y reduciendo la ambigüedad.</p>
+</li>
+<li>
+<p>El <strong>Transfer Learning</strong> es una técnica fundamental para el trabajo con datasets pequeños: permite obtener modelos de alta calidad sin necesidad de miles de imágenes, democratizando el acceso a modelos de visión por computador.</p>
+</li>
+<li>
+<p>La integración entre <strong>servicios de IA en la nube</strong> (AWS Rekognition) y <strong>aplicaciones web modernas</strong> (FastAPI + Alpine.js) demuestra cómo los modelos de ML pueden ser expuestos a usuarios finales de forma accesible, controlada y con consideraciones de costo operativo.</p>
+</li>
+<li>
+<p>El nombre <strong>Argos</strong> resultó acertado: el sistema "ve" y clasifica imágenes con alta confianza, tal como el gigante mitológico observaba el mundo con sus cien ojos.</p>
+</li>
+</ol>
+<hr />
+<h2 id="14-referencias">14. Referencias</h2>
+<ul>
+<li>
+<p>Amazon Web Services. (2024). <em>Amazon Rekognition Custom Labels — Developer Guide</em>. AWS Documentation. https://docs.aws.amazon.com/rekognition/latest/customlabels-dg/</p>
+</li>
+<li>
+<p>Boto3 Project. (2024). <em>Amazon Rekognition — AWS SDK for Python</em>. https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/rekognition.html</p>
+</li>
+<li>
+<p>FastAPI. (2024). <em>FastAPI — Modern, fast (high-performance) web framework for building APIs with Python</em>. https://fastapi.tiangolo.com</p>
+</li>
+<li>
+<p>Tan, M., &amp; Le, Q. V. (2019). EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks. <em>Proceedings of the 36th International Conference on Machine Learning (ICML 2019)</em>.</p>
+</li>
+<li>
+<p>Pan, S. J., &amp; Yang, Q. (2010). A Survey on Transfer Learning. <em>IEEE Transactions on Knowledge and Data Engineering</em>, 22(10), 1345–1359.</p>
+</li>
+<li>
+<p>Coolify. (2024). <em>Self-hosted Heroku / Netlify / Vercel Alternative</em>. https://coolify.io/docs</p>
+</li>
+<li>
+<p>Rekognition, A. (2024). <em>Custom Labels Pricing</em>. https://aws.amazon.com/rekognition/pricing/</p>
+</li>
+</ul>
+<hr />
+<div align="center">
+  <img src="/Users/juancastillo/Documents/Maestria/VisionPorComputador/Argos/docs/logo_lasalle.svg" alt="Universidad de La Salle" width="120"/>
+  <br/>
+  <p><em>Universidad de La Salle · Maestría en Inteligencia Artificial · Bogotá, Colombia · 2026</em></p>
+  <p><em>Repositorio: <a href="https://github.com/jmmana/Maestria-Vision-Computador-Clasificacion">github.com/jmmana/Maestria-Vision-Computador-Clasificacion</a></em></p>
+  <p><em>Aplicación: <a href="https://argos.warlockcode.com">argos.warlockcode.com</a></em></p>
+</div>
+</div>
+</body>
+</html>
