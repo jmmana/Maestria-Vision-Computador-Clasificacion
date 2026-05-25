@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Argos — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+
+    @keyframes pulse-ring {
+      0%   { transform: scale(0.8); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    .pulse-ring::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse-ring 1.5s ease-out infinite;
+    }
+
+    @keyframes scan-line {
+      0%   { top: 0; opacity: 1; }
+      50%  { opacity: 0.6; }
+      100% { top: 100%; opacity: 1; }
+    }
+    .scan-line {
+      animation: scan-line 1.8s ease-in-out infinite;
+      position: absolute;
+      left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+      box-shadow: 0 0 12px #f59e0b;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fade-up 0.4s ease-out forwards; }
+
+    .drop-zone-active { border-color: #f59e0b; background: rgba(245,158,11,0.05); }
+  </style>
+</head>
+<body class="bg-gray-950 text-white min-h-screen" x-data="argos()">
+
+  <!-- Navbar -->
+  <nav class="px-6 py-4 border-b border-gray-800 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center text-black font-bold text-sm">A</div>
+      <span class="font-semibold">Argos</span>
+    </div>
+    <div class="flex items-center gap-6">
+
+      <!-- Estado del modelo -->
+      <div class="flex items-center gap-2">
+        <div class="relative w-2.5 h-2.5 flex items-center justify-center">
+          <div class="w-2.5 h-2.5 rounded-full"
+               :class="{
+                 'bg-green-400':  modelStatus === 'RUNNING',
+                 'bg-yellow-400': ['STARTING','STOPPING'].includes(modelStatus),
+                 'bg-gray-600':   ['STOPPED','UNKNOWN'].includes(modelStatus)
+               }"></div>
+          <div x-show="modelStatus === 'RUNNING'"
+               class="pulse-ring absolute w-2.5 h-2.5 rounded-full text-green-400"></div>
+        </div>
+        <span class="text-sm font-medium"
+              :class="{
+                'text-green-400':  modelStatus === 'RUNNING',
+                'text-yellow-400': ['STARTING','STOPPING'].includes(modelStatus),
+                'text-gray-500':   ['STOPPED','UNKNOWN'].includes(modelStatus)
+              }"
+              x-text="statusLabel()"></span>
+        <span x-show="minutesOn !== null" class="text-xs text-gray-600"
+              x-text="`(${minutesOn}/${maxMinutes} min)`"></span>
+      </div>
+
+      <!-- Botones modelo -->
+      <div class="flex gap-2">
+        <button @click="startModel()"
+          :disabled="modelStatus === 'RUNNING' || modelStatus === 'STARTING' || actionLoading"
+          class="px-3 py-1.5 text-xs font-medium rounded-lg border transition-all
+                 border-green-600 text-green-400 hover:bg-green-600/10
+                 disabled:opacity-30 disabled:cursor-not-allowed">
+          Encender modelo
+        </button>
+        <button @click="stopModel()"
+          :disabled="modelStatus !== 'RUNNING' || actionLoading"
+          class="px-3 py-1.5 text-xs font-medium rounded-lg border transition-all
+                 border-red-600 text-red-400 hover:bg-red-600/10
+                 disabled:opacity-30 disabled:cursor-not-allowed">
+          Detener modelo
+        </button>
+      </div>
+
+      <a href="/logout" class="text-gray-500 hover:text-white text-sm transition-colors">Salir</a>
+    </div>
+  </nav>
+
+  <!-- Toast de notificación -->
+  <div x-show="toast.show" x-transition
+       class="fixed top-5 right-5 z-50 px-5 py-3 rounded-xl text-sm font-medium shadow-xl"
+       :class="toast.type === 'ok' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
+       x-text="toast.msg"></div>
+
+  <!-- Contenido principal -->
+  <main class="max-w-5xl mx-auto px-6 py-12">
+
+    <!-- Header -->
+    <div class="mb-12 text-center">
+      <h1 class="text-3xl font-bold mb-3">Clasificador de imágenes</h1>
+      <p class="text-gray-400 max-w-xl mx-auto">
+        Sube una imagen de un animal y Argos la clasificará usando el modelo entrenado en
+        <strong class="text-white">AWS Rekognition Custom Labels</strong>.
+      </p>
+    </div>
+
+    <!-- Zona principal: 2 columnas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+      <!-- Upload -->
+      <div class="flex flex-col gap-4">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-500">Imagen a clasificar</h2>
+
+        <!-- Drop zone -->
+        <div
+          class="relative border-2 border-dashed border-gray-700 rounded-2xl overflow-hidden
+                 flex flex-col items-center justify-center cursor-pointer transition-all min-h-64"
+          :class="{ 'drop-zone-active': dragOver }"
+          @dragover.prevent="dragOver = true"
+          @dragleave="dragOver = false"
+          @drop.prevent="handleDrop($event)"
+          @click="$refs.fileInput.click()">
+
+          <!-- Preview de la imagen subida -->
+          <template x-if="previewUrl">
+            <div class="relative w-full h-64">
+              <img :src="previewUrl" class="w-full h-full object-contain" />
+              <!-- Línea de escaneo mientras procesa -->
+              <div x-show="processing" class="absolute inset-0 bg-black/40">
+                <div class="scan-line"></div>
+                <div class="absolute inset-0 flex flex-col items-center justify-center gap-3">
+                  <svg class="animate-spin w-8 h-8 text-amber-400" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                  </svg>
+                  <span class="text-amber-400 text-sm font-medium">Analizando imagen...</span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Placeholder -->
+          <template x-if="!previewUrl">
+            <div class="flex flex-col items-center gap-4 py-16 px-8 text-center">
+              <svg class="w-12 h-12 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14
+                     M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+              <div>
+                <p class="text-gray-400 font-medium">Arrastra una imagen aquí</p>
+                <p class="text-gray-600 text-sm mt-1">o haz clic para seleccionar · JPG, PNG · máx 5 MB</p>
+              </div>
+            </div>
+          </template>
+
+          <input type="file" x-ref="fileInput" class="hidden"
+                 accept="image/*" @change="handleFileSelect($event)" />
+        </div>
+
+        <!-- Botón clasificar -->
+        <button @click="classify()"
+          :disabled="!selectedFile || processing || modelStatus !== 'RUNNING'"
+          class="w-full py-3 rounded-xl font-semibold text-sm transition-all
+                 bg-amber-500 hover:bg-amber-400 text-black
+                 disabled:opacity-30 disabled:cursor-not-allowed">
+          <span x-show="!processing">Clasificar imagen</span>
+          <span x-show="processing" class="flex items-center justify-center gap-2">
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Procesando...
+          </span>
+        </button>
+
+        <!-- Aviso si el modelo está apagado -->
+        <div x-show="modelStatus !== 'RUNNING'" class="text-center text-xs text-yellow-500/80">
+          El modelo debe estar encendido para clasificar imágenes.
+        </div>
+      </div>
+
+      <!-- Resultado -->
+      <div class="flex flex-col gap-4">
+        <h2 class="text-sm font-semibold uppercase tracking-widest text-gray-500">Resultado</h2>
+
+        <!-- Sin resultado aún -->
+        <div x-show="!result && !error"
+             class="flex-1 bg-gray-900 border border-gray-800 rounded-2xl flex items-center justify-center min-h-64">
+          <p class="text-gray-600 text-sm">El resultado aparecerá aquí</p>
+        </div>
+
+        <!-- Error -->
+        <div x-show="error" class="bg-red-500/10 border border-red-500/20 rounded-2xl p-6 fade-up">
+          <p class="text-red-400 text-sm" x-text="error"></p>
+        </div>
+
+        <!-- Resultado exitoso -->
+        <div x-show="result" class="bg-gray-900 border border-gray-800 rounded-2xl p-6 fade-up flex flex-col gap-6">
+
+          <!-- Animal principal -->
+          <div x-show="result && result.labels && result.labels.length > 0">
+            <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Clasificación principal</p>
+            <div class="flex items-baseline gap-3 mb-1">
+              <span class="text-4xl font-bold text-amber-400 uppercase"
+                    x-text="result?.labels?.[0]?.name ?? ''"></span>
+              <span class="text-2xl font-light text-gray-400"
+                    x-text="`${result?.labels?.[0]?.confidence ?? 0}%`"></span>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-1.5 mt-3">
+              <div class="bg-amber-400 h-1.5 rounded-full transition-all duration-700"
+                   :style="`width: ${result?.labels?.[0]?.confidence ?? 0}%`"></div>
+            </div>
+          </div>
+
+          <!-- Todas las clases -->
+          <div x-show="result && result.labels && result.labels.length > 1">
+            <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">Todas las clases detectadas</p>
+            <div class="flex flex-col gap-3">
+              <template x-for="(label, idx) in (result?.labels ?? [])" :key="idx">
+                <div class="flex items-center gap-3">
+                  <span class="text-sm w-20 capitalize" x-text="label.name"></span>
+                  <div class="flex-1 bg-gray-800 rounded-full h-1.5">
+                    <div class="bg-amber-400/60 h-1.5 rounded-full transition-all duration-700"
+                         :style="`width: ${label.confidence}%`"></div>
+                  </div>
+                  <span class="text-xs text-gray-400 w-12 text-right" x-text="`${label.confidence}%`"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Sin detección -->
+          <div x-show="result && result.labels && result.labels.length === 0">
+            <p class="text-gray-400 text-sm">No se detectó ninguna clase con suficiente confianza.</p>
+          </div>
+
+          <!-- Info técnica -->
+          <div class="border-t border-gray-800 pt-4 text-xs text-gray-600">
+            Modelo: AWS Rekognition Custom Labels · Argos v1 · us-east-1
+          </div>
+        </div>
+
+        <!-- Info del proyecto -->
+        <div class="bg-gray-900/50 border border-gray-800/50 rounded-2xl p-5 mt-auto">
+          <p class="text-xs text-gray-500 uppercase tracking-widest mb-3">Proyecto académico</p>
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <p class="text-gray-600">Materia</p>
+              <p class="text-gray-300">Visión por Computador G02</p>
+            </div>
+            <div>
+              <p class="text-gray-600">Universidad</p>
+              <p class="text-gray-300">Universidad de La Salle</p>
+            </div>
+            <div>
+              <p class="text-gray-600">Dataset</p>
+              <p class="text-gray-300">51 imgs · 3 clases</p>
+            </div>
+            <div>
+              <p class="text-gray-600">Plataforma</p>
+              <p class="text-gray-300">AWS Rekognition</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function argos() {
+      return {
+        // Upload
+        selectedFile: null,
+        previewUrl: null,
+        dragOver: false,
+        processing: false,
+
+        // Modelo
+        modelStatus: 'UNKNOWN',
+        minutesOn: null,
+        maxMinutes: {{ max_minutes }},
+        actionLoading: false,
+
+        // Resultado
+        result: null,
+        error: null,
+
+        // Toast
+        toast: { show: false, msg: '', type: 'ok' },
+
+        // ── Init ──────────────────────────────────────────────────────────────
+        init() {
+          this.pollStatus();
+          setInterval(() => this.pollStatus(), 15000); // cada 15 seg
+        },
+
+        // ── Estado del modelo ─────────────────────────────────────────────────
+        statusLabel() {
+          const map = {
+            RUNNING: 'Modelo activo',
+            STARTING: 'Iniciando...',
+            STOPPING: 'Deteniendo...',
+            STOPPED: 'Modelo detenido',
+            UNKNOWN: 'Verificando...',
+          };
+          return map[this.modelStatus] ?? this.modelStatus;
+        },
+
+        async pollStatus() {
+          try {
+            const r = await fetch('/api/model/status');
+            const data = await r.json();
+            this.modelStatus = data.status;
+            this.minutesOn = data.minutes_on;
+            this.maxMinutes = data.max_minutes;
+          } catch {}
+        },
+
+        async startModel() {
+          this.actionLoading = true;
+          try {
+            const r = await fetch('/api/model/start', { method: 'POST' });
+            const data = await r.json();
+            this.showToast(data.ok, data.message);
+            if (data.ok) this.modelStatus = 'STARTING';
+            setTimeout(() => this.pollStatus(), 3000);
+          } finally {
+            this.actionLoading = false;
+          }
+        },
+
+        async stopModel() {
+          this.actionLoading = true;
+          try {
+            const r = await fetch('/api/model/stop', { method: 'POST' });
+            const data = await r.json();
+            this.showToast(data.ok, data.message);
+            if (data.ok) { this.modelStatus = 'STOPPED'; this.minutesOn = null; }
+          } finally {
+            this.actionLoading = false;
+          }
+        },
+
+        // ── Upload ────────────────────────────────────────────────────────────
+        handleFileSelect(event) {
+          const file = event.target.files?.[0];
+          if (file) this.setFile(file);
+        },
+
+        handleDrop(event) {
+          this.dragOver = false;
+          const file = event.dataTransfer.files?.[0];
+          if (file && file.type.startsWith('image/')) this.setFile(file);
+        },
+
+        setFile(file) {
+          this.selectedFile = file;
+          this.result = null;
+          this.error = null;
+          const reader = new FileReader();
+          reader.onload = (e) => { this.previewUrl = e.target.result; };
+          reader.readAsDataURL(file);
+        },
+
+        // ── Clasificar ────────────────────────────────────────────────────────
+        async classify() {
+          if (!this.selectedFile || this.processing) return;
+          this.processing = true;
+          this.result = null;
+          this.error = null;
+
+          const form = new FormData();
+          form.append('file', this.selectedFile);
+
+          try {
+            const r = await fetch('/api/classify', { method: 'POST', body: form });
+            const data = await r.json();
+            if (data.ok) {
+              this.result = data;
+            } else {
+              this.error = data.message;
+            }
+          } catch (e) {
+            this.error = 'Error de conexión. Intenta de nuevo.';
+          } finally {
+            this.processing = false;
+          }
+        },
+
+        // ── Toast ─────────────────────────────────────────────────────────────
+        showToast(ok, msg) {
+          this.toast = { show: true, msg, type: ok ? 'ok' : 'error' };
+          setTimeout(() => { this.toast.show = false; }, 3500);
+        },
+      };
+    }
+  </script>
+</body>
+</html>
