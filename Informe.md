@@ -16,6 +16,8 @@
   | **Fecha de entrega** | 24 de mayo de 2026 |
   | **Repositorio** | https://github.com/jmmana/Maestria-Vision-Computador-Clasificacion |
   | **Aplicación web** | https://argos.warlockcode.com |
+  | **Usuario de acceso** | admin |
+  | **Contraseña de acceso** | argos2026lasalle |
 
 </div>
 
