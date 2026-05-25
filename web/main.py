@@ -91,6 +91,13 @@ def start_model():
         add_log("Modelo iniciado", "StartProjectVersion enviado a AWS Rekognition")
         log.info("Modelo iniciado")
     except ClientError as e:
+        # Si ya está corriendo, no es un error real
+        if e.response["Error"]["Code"] == "ResourceInUseException":
+            if model_started_at is None:
+                model_started_at = datetime.now(timezone.utc)
+            add_log("Modelo ya activo", "El modelo ya estaba en estado RUNNING")
+            log.info("Modelo ya estaba RUNNING")
+            return
         add_log("Error al iniciar modelo", str(e))
         log.error(f"Error al iniciar modelo: {e}")
         raise
