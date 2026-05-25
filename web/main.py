@@ -95,9 +95,9 @@ def start_model():
         if e.response["Error"]["Code"] == "ResourceInUseException":
             if model_started_at is None:
                 model_started_at = datetime.now(timezone.utc)
-            add_log("Modelo ya activo", "El modelo ya estaba en estado RUNNING")
+            add_log("Modelo ya activo", "El modelo ya estaba en estado RUNNING — listo para clasificar")
             log.info("Modelo ya estaba RUNNING")
-            return
+            return  # No es error, retornar normal
         add_log("Error al iniciar modelo", str(e))
         log.error(f"Error al iniciar modelo: {e}")
         raise
@@ -236,8 +236,12 @@ async def api_model_status(request: Request):
 async def api_model_start(request: Request):
     require_auth(request)
     try:
+        # Verificar si ya está corriendo antes de intentar iniciar
+        current = get_model_status()
+        if current == "RUNNING":
+            return JSONResponse({"ok": True, "message": "El modelo ya está activo y listo para clasificar."})
         start_model()
-        return JSONResponse({"ok": True, "message": "Modelo iniciando..."})
+        return JSONResponse({"ok": True, "message": "Modelo iniciando... espera 3-5 minutos."})
     except Exception as e:
         return JSONResponse({"ok": False, "message": str(e)}, status_code=500)
 
